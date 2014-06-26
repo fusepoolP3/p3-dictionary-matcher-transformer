@@ -17,7 +17,7 @@ public class Main
     private static void start(Arguments arguments) throws Exception {
         ExtractorServer server = new ExtractorServer(arguments.getPort());
 
-        DictionaryMatcher dm = new DictionaryMatcher();
+        DictionaryMatcher.getInstance();
         
         server.start(new DictionaryMatcherExtractor());
 
