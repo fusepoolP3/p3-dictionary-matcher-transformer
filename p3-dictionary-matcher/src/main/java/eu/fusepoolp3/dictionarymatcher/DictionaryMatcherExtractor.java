@@ -36,7 +36,7 @@ public class DictionaryMatcherExtractor extends RdfGeneratingExtractor {
         final TripleCollection result = new SimpleMGraph();  
         final GraphNode node = new GraphNode(new BNode(), result);
         
-//        System.out.println(data);
+       System.out.println(data);
         
         String[] params = data.split("&");
         for (int i = 0; i < params.length; i++) {
