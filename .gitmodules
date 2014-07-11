@@ -1,0 +1,3 @@
+[submodule "p3-transformer-library"]
+	path = p3-transformer-library
+	url = https://github.com/fusepoolP3/p3-transformer-library.git

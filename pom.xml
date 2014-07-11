@@ -8,6 +8,6 @@
   <name>Fusepool P3 Platform: Dictionary Matcher Parent</name>
   <modules>
     <module>p3-dictionary-matcher</module>
-    <module>p3-extractor-library</module>
+    <module>p3-transformer-library</module>
   </modules>
 </project>
