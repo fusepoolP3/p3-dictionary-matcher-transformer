@@ -5,6 +5,7 @@
 package eu.fusepoolp3.dictionarymatcher;
 
 import eu.fusepool.extractor.Entity;
+import eu.fusepool.extractor.HttpRequestEntity;
 import eu.fusepool.extractor.RdfGeneratingExtractor;
 import eu.fusepoolp3.datastore.Taxonomy;
 import eu.fusepoolp3.dmasimple.Annotation;
@@ -31,11 +32,12 @@ import org.apache.commons.io.IOUtils;
 public class DictionaryMatcherExtractor extends RdfGeneratingExtractor {
 
     @Override
-    protected TripleCollection generateRdf(Entity entity) throws IOException {
+    protected TripleCollection generateRdf(HttpRequestEntity entity) throws IOException {
         final String data = IOUtils.toString(entity.getData(), "UTF-8");
         final TripleCollection result = new SimpleMGraph();  
         final GraphNode node = new GraphNode(new BNode(), result);
-        
+        final String queryString = entity.getRequest().getQueryString();
+        //TODO all config should be in that query string
        System.out.println(data);
         
         String[] params = data.split("&");
