@@ -30,13 +30,11 @@ public class DictionaryMatcher {
     private static DictionaryMatcher instance = null;
     
     private DictionaryMatcher() {
-        System.out.println("Start reading taxonomies...");
         
         extractors = new HashMap<>();
         datastore = new DataStore();
         
         for (Taxonomy t : datastore.GetTaxonomies()) {
-            System.out.println("Create dictionary matcher from taxonomy: " + t.getUri());
             CreateExtractor(t.getUri());
         }
     }
@@ -60,32 +58,47 @@ public class DictionaryMatcher {
         return datastore.GetTaxonomies();
     }
 
-    public void AddTaxonomy(String url, String text) {
-        if(datastore.AddTaxonomy(new Taxonomy(text, url))){
-            if (!extractors.containsKey(url)) {
-                CreateExtractor(url);
+    public void AddTaxonomy(String uri, String text) {
+        if(datastore.AddTaxonomy(new Taxonomy(text, uri))){
+            if (!extractors.containsKey(uri)) {
+                CreateExtractor(uri);
             }
         }
     }
 
-    public void DeleteTaxonomy(String url) {
-        if(datastore.DeleteTaxonomy(url)){
-            if (extractors.containsKey(url)) {
-                RemoveExtractor(url);
+    public void DeleteTaxonomy(String uri) {
+        if(datastore.DeleteTaxonomy(uri)){
+            if (extractors.containsKey(uri)) {
+                RemoveExtractor(uri);
             }
         }
     }
     
-    private void CreateExtractor(String url){
+    public boolean IsExisting(String uri) {
+        if (datastore.GetTaxonomy(uri) != null) {
+            return true;
+        }
+        return false;
+    }
+    
+    private void CreateExtractor(String uri){
+        long start, end;    
+
         try {
-            URI uri = new URI(url);
-
+            System.out.print("Loading taxonomy from " + uri);
+            start = System.currentTimeMillis();
+            
             // get the dictionary from reading the SKOS file
-            dictionary = ReadSKOS.GetDictionary(uri);
+            dictionary = ReadSKOS.GetDictionary(new URI(uri));
 
+            System.out.print(" (" + dictionary.GetSize() + ") and creating transformer ...");
+            
             // create the dictionary annotator instance
-            extractors.put(url, new DictionaryAnnotator(dictionary, "English", false, 0, false));
+            extractors.put(uri, new DictionaryAnnotator(dictionary, "English", false, 0, false));
 
+            end = System.currentTimeMillis();
+            System.out.println(" done [" + Double.toString((double)(end - start)/1000) + " sec] .");
+            
         } catch (URISyntaxException ex) {
             throw new RuntimeException(ex);
         }

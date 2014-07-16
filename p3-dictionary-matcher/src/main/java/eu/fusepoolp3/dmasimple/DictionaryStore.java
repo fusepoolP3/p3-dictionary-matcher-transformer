@@ -114,6 +114,10 @@ public class DictionaryStore {
         return prefLabels.get(uri);
     }
 
+    public int GetSize(){
+        return keywords.size();
+    }
+    
     @Override
     public String toString() {
         String result = "";

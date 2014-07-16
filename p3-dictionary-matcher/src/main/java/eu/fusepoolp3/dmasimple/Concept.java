@@ -38,6 +38,13 @@ public class Concept {
         return false;
     }
 
+    public Boolean IsAltLabel(){
+        if(LabelType.ALT.toString().equals(labelType.toString())){
+            return true;
+        }
+        return false;
+    }
+    
     @Override
     public String toString() {
         return "Concept{" + "labelText=" + labelText + ", labelType=" + labelType + ", uri=" + uri + ", type=" + type + '}';

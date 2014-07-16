@@ -1,8 +1,10 @@
 package eu.fusepoolp3.dmasimple;
 
+import eu.fusepoolp3.dictionarymatcher.ReadSKOS;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -143,6 +145,10 @@ public class DictionaryAnnotator {
      * @return 
      */
     public List<Annotation> GetEntities(String text){
+        long start, end;    
+        System.out.print("Extracting entities from text ");
+        start = System.currentTimeMillis();
+
         // tokenize text
         TokenizeText(text);
 
@@ -163,6 +169,13 @@ public class DictionaryAnnotator {
                 entitiesToReturn.add(e);
             }
         }
+        
+        
+        System.out.print("(" + entitiesToReturn.size() + ") ...");
+        
+        end = System.currentTimeMillis();
+        System.out.println(" done [" + Double.toString((double)(end - start)/1000) + " sec] .");
+        
         return entitiesToReturn;
     }
     

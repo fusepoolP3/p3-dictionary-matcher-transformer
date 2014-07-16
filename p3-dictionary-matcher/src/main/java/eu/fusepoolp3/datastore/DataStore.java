@@ -90,6 +90,37 @@ public class DataStore {
     }
     
     /**
+     * Selects a single taxonomy from the local data store and returns a
+     * Taxonomy object.
+     *
+     * @return
+     */
+    public Taxonomy GetTaxonomy(String uri) {
+        Taxonomy taxonomy = null;
+        PreparedStatement statement;
+        Connect();
+        try {         
+            
+            statement = connection.prepareStatement("select * from taxonomy where uri=?");
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+            statement.setString(1, uri);
+            
+            ResultSet rs = statement.executeQuery();    
+            if (rs.next()) {
+                // read the result set
+                taxonomy = new Taxonomy(rs.getInt("id"), rs.getString("name"), rs.getString("uri"));
+            }
+            
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            Disconnect();
+        }
+        
+        return taxonomy;
+    }
+    
+    /**
      * Adds a taxonomy from the local data store.
      *
      * @param c

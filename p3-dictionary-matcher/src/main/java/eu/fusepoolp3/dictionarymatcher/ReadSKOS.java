@@ -5,6 +5,7 @@
 package eu.fusepoolp3.dictionarymatcher;
 
 import eu.fusepoolp3.dmasimple.DictionaryStore;
+import eu.fusepoolp3.dmasimple.LabelType;
 import java.net.URI;
 import org.semanticweb.skos.SKOSAnnotation;
 import org.semanticweb.skos.SKOSConcept;
@@ -23,6 +24,7 @@ import org.semanticweb.skosapibinding.SKOSManager;
  * @author Gabor
  */
 public class ReadSKOS {
+    
     public static DictionaryStore GetDictionary(URI uri){
         // create dictionary store to store pref and alt labels
         DictionaryStore dictionary = new DictionaryStore();
@@ -35,7 +37,7 @@ public class ReadSKOS {
 
             for (SKOSConcept concept : dataSet.getSKOSConcepts()) {
 
-                System.out.println("Concept: " + concept.getURI());
+//                System.out.println("Concept: " + concept.getURI());
 
                 /*
                  * SKOS entities such as Concepts, ConceptSchemes (See SKOSEntity in Javadoc for full list), are related to other
@@ -49,15 +51,15 @@ public class ReadSKOS {
                 concept.getSKOSAnnotationsByURI(dataSet, manager.getSKOSDataFactory().getSKOSBroaderProperty().getURI());
 
 
-                System.out.println("\tObject property assertions:");
-                for (SKOSObjectRelationAssertion objectAssertion : dataSet.getSKOSObjectRelationAssertions(concept)) {
-                    System.out.println("\t\t" + objectAssertion.getSKOSProperty().getURI().getFragment() + " " + objectAssertion.getSKOSObject().getURI().getFragment());
-                    
-                }
-                System.out.println("");
+//                System.out.println("\tObject property assertions:");
+//                for (SKOSObjectRelationAssertion objectAssertion : dataSet.getSKOSObjectRelationAssertions(concept)) {
+//                    System.out.println("\t\t" + objectAssertion.getSKOSProperty().getURI().getFragment() + " " + objectAssertion.getSKOSObject().getURI().getFragment());
+//                    
+//                }
+//                System.out.println("");
 
                 // print out any data property assertions
-                System.out.println("\tData property assertions:");
+//                System.out.println("\tData property assertions:");
                 for (SKOSDataRelationAssertion assertion : dataSet.getSKOSDataRelationAssertions(concept)) {
 
                     // the object of a data assertion can be either a typed or untyped literal
@@ -66,7 +68,7 @@ public class ReadSKOS {
                     if (literal.isTyped()) {
 
                         SKOSTypedLiteral typedLiteral = literal.getAsSKOSTypedLiteral();
-                        System.out.println("\t\t" + assertion.getSKOSProperty().getURI().getFragment() + " " + literal.getLiteral() + " Type:" + typedLiteral.getDataType().getURI());
+//                        System.out.println("\t\t" + assertion.getSKOSProperty().getURI().getFragment() + " " + literal.getLiteral() + " Type:" + typedLiteral.getDataType().getURI());
                     } else {
 
                         // if it has language
@@ -74,15 +76,15 @@ public class ReadSKOS {
                         if (untypedLiteral.hasLang()) {
                             lang = untypedLiteral.getLang();
                         }
-                        System.out.println("\t\t" + assertion.getSKOSProperty().getURI().getFragment() + " " + literal.getLiteral() + " Lang:" + lang);
+//                        System.out.println("\t\t" + assertion.getSKOSProperty().getURI().getFragment() + " " + literal.getLiteral() + " Lang:" + lang);
 
                     }
                 }
-                System.out.println("");
+//                System.out.println("");
 
 
                 // finally get any OWL annotations - the object of a annotation property can be a literal or an entity
-                System.out.println("\tAnnotation property assertions:");
+//                System.out.println("\tAnnotation property assertions:");
                 for (SKOSAnnotation assertion : dataSet.getSKOSAnnotations(concept)) {
 
                     // if the annotation is a literal annotation?
@@ -106,14 +108,18 @@ public class ReadSKOS {
                         value = entity.getURI().getFragment();
                     }
                     
-                    if(value != null){
+                    String labelText = value;
+                    String labelType = assertion.getURI().getFragment();
+                    String uriText = concept.getURI().toString();
+                            
+                    if(ValidateConcept(labelText, labelType, uriText)) {
                         dictionary.AddOriginalElement(
-                                value,
-                                assertion.getURI().getFragment(),
-                                concept.getURI().toString());
+                                labelText,
+                                labelType,
+                                uriText);
                     }
                     
-                    System.out.println("\t\t" + assertion.getURI().getFragment() + " " + value + " Lang:" + lang);
+//                    System.out.println("\t\t" + assertion.getURI().getFragment() + " " + value + " Lang:" + lang);
                 }
 //                System.out.println("");
             }
@@ -123,4 +129,17 @@ public class ReadSKOS {
         
         return dictionary;
     }
+    
+    private static Boolean ValidateConcept(String labelText, String labelType, String uriText) {
+        if (labelText != null && labelType != null && uriText != null) {
+            if (LabelType.ALT.toString().equals(labelType)) {
+                return true;
+            }
+            if (LabelType.PREF.toString().equals(labelType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
 }

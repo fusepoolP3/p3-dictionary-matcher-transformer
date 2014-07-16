@@ -1,6 +1,5 @@
 package eu.fusepoolp3.dictionarymatcher;
 
-import eu.fusepool.extractor.sample.Arguments;
 import eu.fusepool.extractor.server.ExtractorServer;
 import org.wymiwyg.commons.util.arguments.ArgumentHandler;
 
