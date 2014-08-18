@@ -6,8 +6,8 @@ Dictionary Matcher is P3 transformer for SKOS based entity extraction.
 
 To clone the repository to your local machine
 
-      git clone https://github.com/fusepoolP3/dictionary-matcher-parent.git
-      cd dictionary-matcher-parent
+      git clone https://github.com/fusepoolP3/p3-dictionary-matcher-transfromer.git
+      cd p3-dictionary-matcher-transfromer
       git submodule update --init
 
 Compile and run with
