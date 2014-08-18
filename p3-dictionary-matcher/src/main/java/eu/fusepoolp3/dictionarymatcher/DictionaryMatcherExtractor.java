@@ -4,8 +4,8 @@
  */
 package eu.fusepoolp3.dictionarymatcher;
 
-import eu.fusepool.extractor.HttpRequestEntity;
-import eu.fusepool.extractor.RdfGeneratingExtractor;
+import eu.fusepool.p3.transformer.HttpRequestEntity;
+import eu.fusepool.p3.transformer.RdfGeneratingExtractor;
 import eu.fusepoolp3.datastore.Taxonomy;
 import eu.fusepoolp3.dmasimple.Annotation;
 import java.io.IOException;
@@ -73,9 +73,9 @@ public class DictionaryMatcherExtractor extends RdfGeneratingExtractor {
             
             // if uri of the taxonomy and data were provided annotate text
             if (text != null && !text.isEmpty()) {
-                node.addProperty(RDF.type, new UriRef("http://example.org/ontology#TextDescription"));
-                node.addPropertyValue(SIOC.content, text);
-                node.addPropertyValue(new UriRef("http://example.org/ontology#textLength"), text.length());
+//                node.addProperty(RDF.type, new UriRef("http://example.org/ontology#TextDescription"));
+//                node.addPropertyValue(SIOC.content, text);
+//                node.addPropertyValue(new UriRef("http://example.org/ontology#textLength"), text.length());
 
                 // if taxonomy does not exist add it first
                 if(!dm.IsExisting(uri)){

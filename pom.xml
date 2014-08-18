@@ -7,7 +7,14 @@
   <packaging>pom</packaging>
   <name>Fusepool P3 Platform: Dictionary Matcher Parent</name>
   <modules>
-    <module>p3-dictionary-matcher</module>
     <module>p3-transformer-library</module>
+    <module>p3-transformer-commons</module>
+    <module>p3-dictionary-matcher</module>
   </modules>
+  <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <maven.compiler.source>1.7</maven.compiler.source>
+      <maven.compiler.target>1.7</maven.compiler.target>
+      <main.class>eu.fusepoolp3.dictionarymatcher.Main</main.class>
+  </properties>
 </project>
