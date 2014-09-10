@@ -36,11 +36,11 @@ public class Main {
                     public Transformer getTransformer(HttpServletRequest request) {
                         if (StringUtils.isNotEmpty(request.getQueryString())) {
                             DictionaryMatcherTransformer dictionaryMatcherTransformer = transformers.get(request.getQueryString());
-                            // if pipeline transformer is not found in cache
+                            // if transformer is not found in cache
                             if (dictionaryMatcherTransformer == null) {
                                 // create a new transformer
                                 dictionaryMatcherTransformer = new DictionaryMatcherTransformer(request.getQueryString());
-                                // put the pipeline transformer in the cache 
+                                // put the transformer in the cache 
                                 transformers.put(request.getQueryString(), dictionaryMatcherTransformer);
                             }
                             return dictionaryMatcherTransformer;

@@ -88,6 +88,7 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
 
     @Override
     protected TripleCollection generateRdf(HttpRequestEntity entity) throws IOException {
+        // get text data from request
         final String data = IOUtils.toString(entity.getData(), "UTF-8");
         final TripleCollection result = new SimpleMGraph();
         final GraphNode node = new GraphNode(new BNode(), result);
@@ -97,7 +98,8 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
         node.addPropertyValue(SIOC.content, data);
         node.addPropertyValue(new UriRef("http://example.org/ontology#textLength"), data.length());
 
-        if (StringUtils.isNotEmpty(data)) {
+        // if data is empty or blank do not invoke the annotator
+        if (StringUtils.isNotBlank(data)) {
             // create output from annotations
             for (Annotation e : dictionaryAnnotator.GetEntities(data)) {
                 nodes = new GraphNode(new BNode(), result);
