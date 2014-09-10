@@ -1,11 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package eu.fusepoolp3.dictionarymatcher;
+package eu.fusepoolp3.dmasimple;
 
-import eu.fusepoolp3.dmasimple.DictionaryStore;
-import eu.fusepoolp3.dmasimple.LabelType;
 import java.net.URI;
 import org.semanticweb.skos.SKOSAnnotation;
 import org.semanticweb.skos.SKOSConcept;
@@ -14,7 +8,6 @@ import org.semanticweb.skos.SKOSDataRelationAssertion;
 import org.semanticweb.skos.SKOSDataset;
 import org.semanticweb.skos.SKOSEntity;
 import org.semanticweb.skos.SKOSLiteral;
-import org.semanticweb.skos.SKOSObjectRelationAssertion;
 import org.semanticweb.skos.SKOSTypedLiteral;
 import org.semanticweb.skos.SKOSUntypedLiteral;
 import org.semanticweb.skosapibinding.SKOSManager;
@@ -23,9 +16,9 @@ import org.semanticweb.skosapibinding.SKOSManager;
  *
  * @author Gabor
  */
-public class ReadSKOS {
+public class Skos {
     
-    public static DictionaryStore GetDictionary(URI uri){
+    public static DictionaryStore ReadDictionary(URI uri){
         // create dictionary store to store pref and alt labels
         DictionaryStore dictionary = new DictionaryStore();
         

@@ -1,10 +1,8 @@
 package eu.fusepoolp3.dmasimple;
 
-import eu.fusepoolp3.dictionarymatcher.ReadSKOS;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -146,7 +144,7 @@ public class DictionaryAnnotator {
      */
     public List<Annotation> GetEntities(String text){
         long start, end;    
-        System.out.print("Extracting entities from text ");
+        System.out.print("Extracting entities from input text ");
         start = System.currentTimeMillis();
 
         // tokenize text
