@@ -7,23 +7,27 @@ import eu.fusepoolp3.dmasimple.DictionaryAnnotator;
 import eu.fusepoolp3.dmasimple.DictionaryStore;
 import eu.fusepoolp3.dmasimple.Skos;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import org.apache.clerezza.rdf.core.BNode;
+import org.apache.clerezza.rdf.core.Graph;
+import org.apache.clerezza.rdf.core.Literal;
+import org.apache.clerezza.rdf.core.Resource;
+import org.apache.clerezza.rdf.core.Triple;
 import org.apache.clerezza.rdf.core.TripleCollection;
 import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.impl.SimpleMGraph;
-import org.apache.clerezza.rdf.ontologies.RDF;
 import org.apache.clerezza.rdf.ontologies.SIOC;
 import org.apache.clerezza.rdf.utils.GraphNode;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.clerezza.rdf.core.serializedform.Parser;
+import org.apache.clerezza.rdf.ontologies.RDF;
 
 /**
  *
@@ -31,6 +35,8 @@ import org.apache.commons.lang.StringUtils;
  */
 public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
 
+    public static final UriRef TEXUAL_CONTENT = new UriRef("http://example.org/ontology#TextualContent");
+    
     private Map<String, String> queryParams;
     private DictionaryAnnotator dictionaryAnnotator;
     private DictionaryStore dictionary;
@@ -82,8 +88,38 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
 
     @Override
     protected TripleCollection generateRdf(HttpRequestEntity entity) throws IOException {
-        // get text data from request
-        final String data = IOUtils.toString(entity.getData(), "UTF-8");
+        // get mimetype of content
+        final MimeType mimeType = entity.getType();
+        
+        String data = null; 
+        try {
+            // handle data based on content type
+            if (mimeType.match("text/turtle")) {
+                Graph graph = Parser.getInstance().parse(entity.getData(), "text/turtle");
+                Iterator<Triple> typeTriples = graph.filter(null, SIOC.content, null);
+                if(!typeTriples.hasNext()) {
+                    throw new RuntimeException("No type triple found with predicate " + SIOC.content);
+                }
+                StringBuilder result = new StringBuilder();
+                int count = 0;
+                while(typeTriples.hasNext()) {
+                    Literal literal = (Literal) typeTriples.next().getObject();
+                    // if there is more than one triple separate them with new line
+                    if(count > 0){
+                        result.append(System.getProperty("line.separator"));
+                    }
+                    result.append(literal.getLexicalForm());
+                    count++;
+                }
+                data = result.toString();
+            } else {
+                // get text data from request
+                data = IOUtils.toString(entity.getData(), "UTF-8");
+            } 
+        } catch (MimeTypeParseException e) {
+            throw new RuntimeException(e);
+        }
+
         final TripleCollection result = new SimpleMGraph();
         final GraphNode node = new GraphNode(new BNode(), result);
         GraphNode nodes;
@@ -115,8 +151,10 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
     @Override
     public Set<MimeType> getSupportedInputFormats() {
         try {
-            MimeType mimeType = new MimeType("text/plain;charset=UTF-8");
-            return Collections.singleton(mimeType);
+            Set<MimeType> mimeTypes = new HashSet<>();
+            mimeTypes.add(new MimeType("text/plain"));
+            mimeTypes.add(new MimeType("text/turtle"));
+            return mimeTypes;
         } catch (MimeTypeParseException ex) {
             throw new RuntimeException(ex);
         }
