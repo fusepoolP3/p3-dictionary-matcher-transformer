@@ -34,18 +34,17 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
     private Map<String, String> queryParams;
     private DictionaryAnnotator dictionaryAnnotator;
     private DictionaryStore dictionary;
-    
+
     /**
      * Default constructor for GET
      */
     public DictionaryMatcherTransformer() {
-    
     }
-    
+
     /**
      * Constructor for POST
-     * 
-     * @param queryString 
+     *
+     * @param queryString
      */
     public DictionaryMatcherTransformer(String queryString) {
         // get query params from query string
@@ -55,34 +54,29 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
         if (queryParams.isEmpty()) {
             throw new RuntimeException("Query string must not be empty!");
         }
-        
+
         String taxonomy = queryParams.get("taxonomy");
 
         if (StringUtils.isEmpty(taxonomy)) {
             throw new RuntimeException("Taxonomy URI must not be empty!");
         }
-        
+
         // create new dictionaryAnnotator if it does not exists
         if (dictionaryAnnotator == null) {
             long start, end;
-            try {
-                System.out.print("Loading taxonomy from " + taxonomy);
-                start = System.currentTimeMillis();
+            System.out.print("Loading taxonomy from " + taxonomy);
+            start = System.currentTimeMillis();
 
-                // get the dictionary from reading the SKOS file
-                dictionary = Skos.ReadDictionary(new URI(taxonomy));
+            // get the dictionary from reading the SKOS file
+            dictionary = Skos.readDictionary(taxonomy);
 
-                System.out.print(" (" + dictionary.GetSize() + ") and creating transformer ...");
+            System.out.print(" (" + dictionary.GetSize() + ") and creating transformer ...");
 
-                // create the dictionary annotator instance
-                dictionaryAnnotator = new DictionaryAnnotator(dictionary, "English", false, 0, false);      // TODO get settings from query string
+            // create the dictionary annotator instance
+            dictionaryAnnotator = new DictionaryAnnotator(dictionary, "English", false, 0, false);      // TODO get settings from query string
 
-                end = System.currentTimeMillis();
-                System.out.println(" done [" + Double.toString((double) (end - start) / 1000) + " sec] .");
-
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
+            end = System.currentTimeMillis();
+            System.out.println(" done [" + Double.toString((double) (end - start) / 1000) + " sec] .");
         }
     }
 
