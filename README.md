@@ -14,7 +14,7 @@ Compile and run with
 
 Example invocation with curl
 
-      $ curl -X POST -d @file.txt http://localhost:7100/?taxonomy=http://example.org/mytaxonomy.owl
+      $ curl -X POST -d @file.txt "http://localhost:7100/?taxonomy=http://example.org/mytaxonomy.owl"
       []    a       <http://example.org/ontology#Annotation> ;
             <http://example.org/ontology#altLabel>
                     "Mobile Phone"^^<http://www.w3.org/2001/XMLSchema#string> ;
