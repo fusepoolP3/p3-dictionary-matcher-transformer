@@ -17,17 +17,16 @@ import javax.activation.MimeTypeParseException;
 import org.apache.clerezza.rdf.core.BNode;
 import org.apache.clerezza.rdf.core.Graph;
 import org.apache.clerezza.rdf.core.Literal;
-import org.apache.clerezza.rdf.core.Resource;
 import org.apache.clerezza.rdf.core.Triple;
 import org.apache.clerezza.rdf.core.TripleCollection;
 import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.impl.SimpleMGraph;
+import org.apache.clerezza.rdf.core.serializedform.Parser;
+import org.apache.clerezza.rdf.ontologies.RDF;
 import org.apache.clerezza.rdf.ontologies.SIOC;
 import org.apache.clerezza.rdf.utils.GraphNode;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.clerezza.rdf.core.serializedform.Parser;
-import org.apache.clerezza.rdf.ontologies.RDF;
 
 /**
  *
@@ -55,7 +54,7 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
     public DictionaryMatcherTransformer(String queryString) {
         // get query params from query string
         queryParams = getQueryParams(queryString);
-
+        
         // query string must not be empty
         if (queryParams.isEmpty()) {
             throw new RuntimeException("Query string must not be empty!");

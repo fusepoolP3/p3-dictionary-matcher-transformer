@@ -42,24 +42,24 @@ public class TransformerTest {
             + "in intergovernmental treaties and agreements which divide the station into two areas and allow Russia to "
             + "retain full ownership of the Russian Orbital Segment (with the exception of Zarya), with the US Orbital Segment "
             + "allocated between the other international partners.";
-
-    private String baseURI;
     
+    private String baseURI;
+
     @Before
     public void setUp() throws Exception {
         final int port = findFreePort();
         baseURI = "http://localhost:" + port + "/";
         TransformerServer server = new TransformerServer(port);
         server.start(new TransformerFactory() {
-                    @Override
-                    public Transformer getTransformer(HttpServletRequest request) {
-                        if (StringUtils.isNotEmpty(request.getQueryString())) {
-                            return new DictionaryMatcherTransformer(request.getQueryString());
-                        } else {
-                            return new DictionaryMatcherTransformer();
-                        }
-                    }
-                });
+            @Override
+            public Transformer getTransformer(HttpServletRequest request) {
+                if (StringUtils.isNotEmpty(request.getQueryString())) {
+                    return new DictionaryMatcherTransformer(request.getQueryString());
+                } else {
+                    return new DictionaryMatcherTransformer();
+                }
+            }
+        });
     }
 
     @Test
