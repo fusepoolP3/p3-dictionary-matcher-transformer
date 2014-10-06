@@ -7,8 +7,15 @@
     <name>Fusepool P3 Platform: Dictionary Matcher</name>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <main.class>eu.fusepoolp3.dictionarymatcher.Main</main.class>
+        <finalName>${project.artifactId}-${project.version}</finalName>
+    </properties>
     <build>
+        <finalName>${finalName}</finalName>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -143,20 +150,4 @@
             <version>1.4.01</version>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <id>apache.snapshots</id>
-            <name>Apache Snapshot Repository</name>
-            <url>http://repository.apache.org/snapshots</url>
-        </repository>
-    </repositories>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <main.class>eu.fusepoolp3.dictionarymatcher.Main</main.class>
-    </properties>
 </project>

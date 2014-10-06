@@ -1,0 +1,11 @@
+language: java
+before_install: mvn install -DskipTests=true -DfinalName=dictionary-matcher-transformer-$TRAVIS_TAG
+deploy:
+  provider: releases
+  api_key:
+    secure: MB6MhxF9WTNgRqA68Qaw+0yTcGM58dRKijBKyqFnqGclZKR8xTGInZ4uSDhMbO+4r4QgUHX0iNZ5H9DT2M6ElyVwkRjJURAD/o6IJTrxKWZF0qisWKPEbV4UrBFqYUrYIThmEkgYbgeVyvuF0Vy2hFd7lcUJuBVPTYg+FuHJ5LY=
+  file: target/dictionary-matcher-transfromer-$TRAVIS_TAG-jar-with-dependencies.jar
+  on:
+    repo: fusepoolP3/p3-dictionary-matcher-transfromer
+    tags: true
+    all_branches: true
