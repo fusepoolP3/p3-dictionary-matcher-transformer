@@ -3,6 +3,7 @@ package eu.fusepoolp3.dmasimple;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -64,18 +65,11 @@ public class DictionaryAnnotator {
         caseSensitive = _caseSensitive;
         caseSensitiveLength = _caseSensitiveLength;
         eliminateOverlapping = _eliminateOverlapping;
-        
-        URI uri = null;
-        try {
-            // get tokenizer from resources
-            uri = this.getClass().getResource("/en-token.bin").toURI();
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(DictionaryAnnotator.class.getName()).log(Level.SEVERE, null, ex);
-        }
 
         // loading opennlp tokenizer model
         try {
-            modelTok = new TokenizerModel(new File(uri));
+            InputStream inputStream = this.getClass().getResourceAsStream("/en-token.bin");
+            modelTok = new TokenizerModel(inputStream);
             tokenizer = new TokenizerME(modelTok);
         } catch (FileNotFoundException ex) {
             System.err.println("Error while loading tokenizer model: " + ex.getMessage());
