@@ -2,19 +2,22 @@ package eu.fusepoolp3.dictionarymatcher;
 
 import eu.fusepool.p3.transformer.HttpRequestEntity;
 import eu.fusepool.p3.transformer.RdfGeneratingTransformer;
+import eu.fusepool.p3.vocab.FAM;
 import eu.fusepoolp3.dmasimple.Annotation;
 import eu.fusepoolp3.dmasimple.DictionaryAnnotator;
 import eu.fusepoolp3.dmasimple.DictionaryStore;
 import eu.fusepoolp3.dmasimple.Skos;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
-import org.apache.clerezza.rdf.core.BNode;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.clerezza.rdf.core.Graph;
 import org.apache.clerezza.rdf.core.Literal;
 import org.apache.clerezza.rdf.core.Triple;
@@ -34,27 +37,25 @@ import org.apache.commons.lang.StringUtils;
  */
 public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
 
-    public static final UriRef TEXUAL_CONTENT = new UriRef("http://example.org/ontology#TextualContent");
-    
     private Map<String, String> queryParams;
     private DictionaryAnnotator dictionaryAnnotator;
     private DictionaryStore dictionary;
 
     /**
-     * Default constructor for GET
+     * Default constructor for GET.
      */
     public DictionaryMatcherTransformer() {
     }
 
     /**
-     * Constructor for POST
+     * Constructor for POST.
      *
      * @param queryString
      */
     public DictionaryMatcherTransformer(String queryString) {
         // get query params from query string
         queryParams = getQueryParams(queryString);
-        
+
         // query string must not be empty
         if (queryParams.isEmpty()) {
             throw new RuntimeException("Query string must not be empty!");
@@ -89,22 +90,25 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
     protected TripleCollection generateRdf(HttpRequestEntity entity) throws IOException {
         // get mimetype of content
         final MimeType mimeType = entity.getType();
-        
-        String data = null; 
+
+        // get document URI
+        final String extractedFrom = getDocuementURI(entity);
+
+        String data = null;
         try {
             // handle data based on content type
             if (mimeType.match("text/turtle")) {
                 Graph graph = Parser.getInstance().parse(entity.getData(), "text/turtle");
                 Iterator<Triple> typeTriples = graph.filter(null, SIOC.content, null);
-                if(!typeTriples.hasNext()) {
+                if (!typeTriples.hasNext()) {
                     throw new RuntimeException("No type triple found with predicate " + SIOC.content);
                 }
                 StringBuilder result = new StringBuilder();
                 int count = 0;
-                while(typeTriples.hasNext()) {
+                while (typeTriples.hasNext()) {
                     Literal literal = (Literal) typeTriples.next().getObject();
                     // if there is more than one triple separate them with new line
-                    if(count > 0){
+                    if (count > 0) {
                         result.append(System.getProperty("line.separator"));
                     }
                     result.append(literal.getLexicalForm());
@@ -114,33 +118,52 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
             } else {
                 // get text data from request
                 data = IOUtils.toString(entity.getData(), "UTF-8");
-            } 
+            }
         } catch (MimeTypeParseException e) {
             throw new RuntimeException(e);
         }
 
         final TripleCollection result = new SimpleMGraph();
-        final GraphNode node = new GraphNode(new BNode(), result);
-        GraphNode nodes;
-
-        node.addProperty(RDF.type, new UriRef("http://example.org/ontology#TextDescription"));
-        node.addPropertyValue(SIOC.content, data);
-        node.addPropertyValue(new UriRef("http://example.org/ontology#textLength"), data.length());
+        GraphNode node;
 
         // if data is empty or blank do not invoke the annotator
         if (StringUtils.isNotBlank(data)) {
             // create output from annotations
             for (Annotation e : dictionaryAnnotator.GetEntities(data)) {
-                nodes = new GraphNode(new BNode(), result);
-                nodes.addProperty(RDF.type, new UriRef("http://example.org/ontology#Annotation"));
-                nodes.addPropertyValue(new UriRef("http://example.org/ontology#prefLabel"), e.getPrefLabel());
+                // create selector URI
+                String selector = extractedFrom + "#char=" + e.getBegin() + "," + e.getEnd();
+
+                // Linked Entity Annotation (body)
+                node = new GraphNode(new UriRef("annotation-body1"), result);
+                node.addProperty(RDF.type, FAM.LinkedEntity);
                 if (e.getAltLabel() != null) {
-                    nodes.addPropertyValue(new UriRef("http://example.org/ontology#altLabel"), e.getAltLabel());
+                    node.addPropertyValue(FAM.entity_label, e.getAltLabel());
+                } else {
+                    node.addPropertyValue(FAM.entity_label, e.getPrefLabel());
                 }
-                nodes.addPropertyValue(new UriRef("http://example.org/ontology#reference"), new UriRef(e.getUri()));
-                nodes.addPropertyValue(new UriRef("http://example.org/ontology#textFound"), e.getLabel());
-                nodes.addPropertyValue(new UriRef("http://example.org/ontology#begin"), e.getBegin());
-                nodes.addPropertyValue(new UriRef("http://example.org/ontology#end"), e.getEnd());
+                node.addProperty(FAM.entity_reference, new UriRef(e.getUri()));
+                node.addPropertyValue(FAM.entity_mention, e.getLabel());
+                node.addProperty(FAM.extracted_from, new UriRef(extractedFrom));
+                node.addProperty(FAM.selector, new UriRef(selector));
+
+                // oa:Annotation
+                node = new GraphNode(new UriRef("annotation1"), result);
+                node.addProperty(RDF.type, new UriRef("http://www.w3.org/ns/oa#Annotation"));
+                node.addProperty(new UriRef("http://www.w3.org/ns/oa#hasBody"), new UriRef("annotation-body1"));
+                node.addProperty(new UriRef("http://www.w3.org/ns/oa#hasTarget"), new UriRef("sp-resource1"));
+
+                // oa:SpecificResource
+                node = new GraphNode(new UriRef("sp-resource1"), result);
+                node.addProperty(RDF.type, new UriRef("http://www.w3.org/ns/oa#SpecificResource"));
+                node.addProperty(new UriRef("http://www.w3.org/ns/oa#hasSource"), new UriRef("annotation-body1"));
+                node.addProperty(new UriRef("http://www.w3.org/ns/oa#hasSelector"), new UriRef(selector));
+
+                // NIF selector
+                node = new GraphNode(new UriRef(selector), result);
+                node.addProperty(RDF.type, FAM.NifSelector);
+                node.addProperty(RDF.type, new UriRef("http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String"));
+                node.addPropertyValue(new UriRef("http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#beginIndex"), e.getBegin());
+                node.addPropertyValue(new UriRef("http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#endIndex"), e.getEnd());
             }
         }
 
@@ -176,11 +199,73 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
         if (StringUtils.isNotBlank(queryString)) {
             String[] params = queryString.split("&");
             String[] param;
-            for (int i = 0; i < params.length; i++) {
-                param = params[i].split("=", 2);
+            for (String item : params) {
+                param = item.split("=", 2);
                 temp.put(param[0], param[1]);
             }
         }
         return temp;
+    }
+
+    /**
+     * Get docuemt URI either from content location header, or generate one if it's null.
+     *
+     * @param entity
+     * @return
+     */
+    private String getDocuementURI(HttpRequestEntity entity) {
+        String documentURI;
+
+        if (entity.getContentLocation() == null) {
+            HttpServletRequest request = entity.getRequest();
+            String baseURL = getBaseURL(request);
+            String requestID = request.getHeader("X-Request-ID");
+
+            if (StringUtils.isNotEmpty(requestID)) {
+                documentURI = baseURL + requestID;
+            } else {
+                documentURI = baseURL + UUID.randomUUID().toString();
+            }
+        } else {
+            documentURI = entity.getContentLocation().toString();
+        }
+
+        return documentURI;
+    }
+
+    /**
+     * Returns the base URL.
+     *
+     * @param request
+     * @return
+     */
+    public static String getBaseURL(HttpServletRequest request) {
+        if ((request.getServerPort() == 80) || (request.getServerPort() == 443)) {
+            return request.getScheme() + "://" + request.getServerName() + "/";
+        } else {
+            return request.getScheme() + "://" + request.getServerName() + ":"
+                    + request.getServerPort() + "/";
+        }
+    }
+
+    /**
+     * For testing purposes.
+     *
+     * @param request
+     */
+    public void printHeaders(HttpServletRequest request) {
+        Enumeration<String> headerNames = request.getHeaderNames();
+
+        while (headerNames.hasMoreElements()) {
+
+            String headerName = headerNames.nextElement();
+            System.out.print(headerName);
+
+            Enumeration<String> headers = request.getHeaders(headerName);
+            while (headers.hasMoreElements()) {
+                String headerValue = headers.nextElement();
+                System.out.println("\t" + headerValue);
+            }
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.jayway.restassured.response.Response;
 import eu.fusepool.p3.transformer.Transformer;
 import eu.fusepool.p3.transformer.TransformerFactory;
 import eu.fusepool.p3.transformer.server.TransformerServer;
+import eu.fusepool.p3.vocab.FAM;
 import eu.fusepoolp3.dictionarymatcher.DictionaryMatcherTransformer;
 import java.net.ServerSocket;
 import java.util.Iterator;
@@ -13,7 +14,6 @@ import org.apache.clerezza.rdf.core.BNode;
 import org.apache.clerezza.rdf.core.Graph;
 import org.apache.clerezza.rdf.core.Resource;
 import org.apache.clerezza.rdf.core.Triple;
-import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.core.serializedform.Parser;
 import org.apache.clerezza.rdf.ontologies.RDF;
 import org.apache.commons.lang.StringUtils;
@@ -28,7 +28,7 @@ import org.junit.Test;
 public class TransformerTest {
 
     final private String testTaxonomy = "NASA.subjects.skos.xml";
-    
+
     final private String testText = "The International Space Station (ISS) combines NASA's Space Station Freedom "
             + "project with the Soviet/Russian Mir-2 station, the European Columbus station, and the Japanese KibĹŤ "
             + "laboratory module. NASA originally planned in the 1980s to develop Freedom alone, but US budget "
@@ -42,7 +42,7 @@ public class TransformerTest {
             + "in intergovernmental treaties and agreements which divide the station into two areas and allow Russia to "
             + "retain full ownership of the Russian Orbital Segment (with the exception of Zarya), with the US Orbital Segment "
             + "allocated between the other international partners.";
-    
+
     private String baseURI;
 
     @Before
@@ -77,8 +77,7 @@ public class TransformerTest {
                 .expect().statusCode(HttpStatus.SC_OK).header("Content-Type", "text/turtle").when()
                 .post(baseURI + "?taxonomy=" + testTaxonomy);
         Graph graph = Parser.getInstance().parse(response.getBody().asInputStream(), "text/turtle");
-        Iterator<Triple> typeTriples = graph.filter(null, RDF.type,
-                new UriRef("http://example.org/ontology#Annotation"));
+        Iterator<Triple> typeTriples = graph.filter(null, RDF.type, FAM.LinkedEntity);
         Assert.assertTrue("No type triple found", typeTriples.hasNext());
         Resource textDescription = typeTriples.next().getSubject();
         Assert.assertTrue("TextDescription resource is not a BNode", textDescription instanceof BNode);
