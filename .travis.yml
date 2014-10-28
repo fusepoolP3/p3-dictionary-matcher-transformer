@@ -6,6 +6,6 @@ deploy:
     secure: MB6MhxF9WTNgRqA68Qaw+0yTcGM58dRKijBKyqFnqGclZKR8xTGInZ4uSDhMbO+4r4QgUHX0iNZ5H9DT2M6ElyVwkRjJURAD/o6IJTrxKWZF0qisWKPEbV4UrBFqYUrYIThmEkgYbgeVyvuF0Vy2hFd7lcUJuBVPTYg+FuHJ5LY=
   file: target/dictionary-matcher-transformer-$TRAVIS_TAG-jar-with-dependencies.jar
   on:
-    repo: fusepoolP3/p3-dictionary-matcher-transfromer
+    repo: fusepoolP3/p3-dictionary-matcher-transformer
     tags: true
     all_branches: true
