@@ -92,7 +92,7 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
         final MimeType mimeType = entity.getType();
 
         // get document URI
-        final String extractedFrom = getDocuementURI(entity);
+        final String docuentURI = getDocuementURI(entity);
 
         String data = null;
         try {
@@ -128,13 +128,20 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
 
         // if data is empty or blank do not invoke the annotator
         if (StringUtils.isNotBlank(data)) {
+            int i = 1;
             // create output from annotations
             for (Annotation e : dictionaryAnnotator.GetEntities(data)) {
                 // create selector URI
-                String selector = extractedFrom + "#char=" + e.getBegin() + "," + e.getEnd();
+                String selector = docuentURI + "#char=" + e.getBegin() + "," + e.getEnd();
+                // create annotation-body URI
+                String annotationBody = docuentURI + "#annotation-body" + i;
+                // create annotation URI
+                String annotation = docuentURI + "#annotation" + i;
+                // create sp-resource URI
+                String spResource = docuentURI + "#sp-resource" + i;
 
                 // Linked Entity Annotation (body)
-                node = new GraphNode(new UriRef("annotation-body1"), result);
+                node = new GraphNode(new UriRef(annotationBody), result);
                 node.addProperty(RDF.type, FAM.LinkedEntity);
                 if (e.getAltLabel() != null) {
                     node.addPropertyValue(FAM.entity_label, e.getAltLabel());
@@ -143,19 +150,19 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
                 }
                 node.addProperty(FAM.entity_reference, new UriRef(e.getUri()));
                 node.addPropertyValue(FAM.entity_mention, e.getLabel());
-                node.addProperty(FAM.extracted_from, new UriRef(extractedFrom));
+                node.addProperty(FAM.extracted_from, new UriRef(docuentURI));
                 node.addProperty(FAM.selector, new UriRef(selector));
 
                 // oa:Annotation
-                node = new GraphNode(new UriRef("annotation1"), result);
+                node = new GraphNode(new UriRef(annotation), result);
                 node.addProperty(RDF.type, new UriRef("http://www.w3.org/ns/oa#Annotation"));
-                node.addProperty(new UriRef("http://www.w3.org/ns/oa#hasBody"), new UriRef("annotation-body1"));
-                node.addProperty(new UriRef("http://www.w3.org/ns/oa#hasTarget"), new UriRef("sp-resource1"));
+                node.addProperty(new UriRef("http://www.w3.org/ns/oa#hasBody"), new UriRef(annotationBody));
+                node.addProperty(new UriRef("http://www.w3.org/ns/oa#hasTarget"), new UriRef(spResource));
 
                 // oa:SpecificResource
-                node = new GraphNode(new UriRef("sp-resource1"), result);
+                node = new GraphNode(new UriRef(spResource), result);
                 node.addProperty(RDF.type, new UriRef("http://www.w3.org/ns/oa#SpecificResource"));
-                node.addProperty(new UriRef("http://www.w3.org/ns/oa#hasSource"), new UriRef("annotation-body1"));
+                node.addProperty(new UriRef("http://www.w3.org/ns/oa#hasSource"), new UriRef(annotationBody));
                 node.addProperty(new UriRef("http://www.w3.org/ns/oa#hasSelector"), new UriRef(selector));
 
                 // NIF selector
@@ -164,6 +171,8 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
                 node.addProperty(RDF.type, new UriRef("http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String"));
                 node.addPropertyValue(new UriRef("http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#beginIndex"), e.getBegin());
                 node.addPropertyValue(new UriRef("http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#endIndex"), e.getEnd());
+
+                i++;
             }
         }
 
