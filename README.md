@@ -31,6 +31,10 @@ Example invocation with curl (setting the Content-Location header is optional)
       			  
       <http://example.com/document1#annotation1>
             a       <http://www.w3.org/ns/oa#Annotation> ;
+            <http://www.w3.org/ns/oa#annotatedAt>
+                    "2014-10-30T12:54:42+0100"^^<http://www.w3.org/2001/XMLSchema#string> ;
+            <http://www.w3.org/ns/oa#annotatedBy>
+                    <p3-dictionary-matcher-transformer> ;
             <http://www.w3.org/ns/oa#hasBody>
                     <http://example.com/document1#annotation-body1> ;
             <http://www.w3.org/ns/oa#hasTarget>
@@ -65,6 +69,10 @@ Example invocation with curl (setting the Content-Location header is optional)
       			  
       <http://example.com/document1#annotation2>
             a       <http://www.w3.org/ns/oa#Annotation> ;
+            <http://www.w3.org/ns/oa#annotatedAt>
+                    "2014-10-30T12:54:42+0100"^^<http://www.w3.org/2001/XMLSchema#string> ;
+            <http://www.w3.org/ns/oa#annotatedBy>
+                    <p3-dictionary-matcher-transformer> ;
             <http://www.w3.org/ns/oa#hasBody>
                     <http://example.com/document1#annotation-body2> ;
             <http://www.w3.org/ns/oa#hasTarget>
