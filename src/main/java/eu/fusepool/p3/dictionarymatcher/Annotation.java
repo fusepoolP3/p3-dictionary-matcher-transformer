@@ -1,6 +1,8 @@
 package eu.fusepool.p3.dictionarymatcher;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,12 +26,14 @@ public class Annotation {
     private int tokenizedBegin;
     private int tokenizedEnd;
     boolean overlap;
+    Date timestamp;
     List<Token> tokens;
 
     /**
      * Simple constructor.
      */
     public Annotation() {
+        timestamp = new Date();
         tokens = new ArrayList<>();
     }
 
@@ -42,6 +46,7 @@ public class Annotation {
     public Annotation(String label, String uri) {
         this.label = label;
         this.uri = uri;
+        timestamp = new Date();
         tokens = new ArrayList<>();
     }
 
@@ -56,6 +61,7 @@ public class Annotation {
         this.label = label;
         this.uri = uri;
         this.type = type;
+        timestamp = new Date();
         tokens = new ArrayList<>();
     }
 
@@ -161,6 +167,10 @@ public class Annotation {
 
     public void setTokenizedEnd(int tokenizedEnd) {
         this.tokenizedEnd = tokenizedEnd;
+    }
+
+    public String getTimestamp() {
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(timestamp);
     }
 
     /**

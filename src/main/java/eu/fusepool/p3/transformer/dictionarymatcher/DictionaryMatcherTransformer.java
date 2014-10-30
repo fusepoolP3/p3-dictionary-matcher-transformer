@@ -1,12 +1,12 @@
 package eu.fusepool.p3.transformer.dictionarymatcher;
 
-import eu.fusepool.p3.transformer.HttpRequestEntity;
-import eu.fusepool.p3.transformer.RdfGeneratingTransformer;
-import eu.fusepool.p3.vocab.FAM;
 import eu.fusepool.p3.dictionarymatcher.Annotation;
 import eu.fusepool.p3.dictionarymatcher.DictionaryAnnotator;
 import eu.fusepool.p3.dictionarymatcher.DictionaryStore;
 import eu.fusepool.p3.dictionarymatcher.Skos;
+import eu.fusepool.p3.transformer.HttpRequestEntity;
+import eu.fusepool.p3.transformer.RdfGeneratingTransformer;
+import eu.fusepool.p3.vocab.FAM;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -158,6 +158,8 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
                 node.addProperty(RDF.type, new UriRef("http://www.w3.org/ns/oa#Annotation"));
                 node.addProperty(new UriRef("http://www.w3.org/ns/oa#hasBody"), new UriRef(annotationBody));
                 node.addProperty(new UriRef("http://www.w3.org/ns/oa#hasTarget"), new UriRef(spResource));
+                node.addProperty(new UriRef("http://www.w3.org/ns/oa#annotatedBy"), new UriRef("p3-dictionary-matcher-transformer"));
+                node.addPropertyValue(new UriRef("http://www.w3.org/ns/oa#annotatedAt"), e.getTimestamp());
 
                 // oa:SpecificResource
                 node = new GraphNode(new UriRef(spResource), result);
@@ -217,7 +219,8 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
     }
 
     /**
-     * Get docuemt URI either from content location header, or generate one if it's null.
+     * Get docuemt URI either from content location header, or generate one if
+     * it's null.
      *
      * @param entity
      * @return
