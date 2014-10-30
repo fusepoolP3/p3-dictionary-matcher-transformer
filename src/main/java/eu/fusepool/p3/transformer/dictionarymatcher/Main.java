@@ -1,4 +1,4 @@
-package eu.fusepoolp3.dictionarymatcher;
+package eu.fusepool.p3.transformer.dictionarymatcher;
 
 import eu.fusepool.p3.transformer.Transformer;
 import eu.fusepool.p3.transformer.TransformerFactory;
@@ -40,7 +40,7 @@ public class Main {
                             if (dictionaryMatcherTransformer == null) {
                                 // create a new transformer
                                 dictionaryMatcherTransformer = new DictionaryMatcherTransformer(request.getQueryString());
-                                // put the transformer in the cache 
+                                // put the transformer in the cache
                                 transformers.put(request.getQueryString(), dictionaryMatcherTransformer);
                             }
                             return dictionaryMatcherTransformer;

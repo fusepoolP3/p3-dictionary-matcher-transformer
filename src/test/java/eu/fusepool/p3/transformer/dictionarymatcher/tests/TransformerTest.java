@@ -1,18 +1,16 @@
-package eu.fusepoolp3.dictionarymatcher.tests;
+package eu.fusepool.p3.transformer.dictionarymatcher.tests;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Response;
 import eu.fusepool.p3.transformer.Transformer;
 import eu.fusepool.p3.transformer.TransformerFactory;
+import eu.fusepool.p3.transformer.dictionarymatcher.DictionaryMatcherTransformer;
 import eu.fusepool.p3.transformer.server.TransformerServer;
 import eu.fusepool.p3.vocab.FAM;
-import eu.fusepoolp3.dictionarymatcher.DictionaryMatcherTransformer;
 import java.net.ServerSocket;
 import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.clerezza.rdf.core.BNode;
 import org.apache.clerezza.rdf.core.Graph;
-import org.apache.clerezza.rdf.core.Resource;
 import org.apache.clerezza.rdf.core.Triple;
 import org.apache.clerezza.rdf.core.serializedform.Parser;
 import org.apache.clerezza.rdf.ontologies.RDF;
@@ -76,11 +74,10 @@ public class TransformerTest {
                 .content(testText)
                 .expect().statusCode(HttpStatus.SC_OK).header("Content-Type", "text/turtle").when()
                 .post(baseURI + "?taxonomy=" + testTaxonomy);
+        System.out.println(response.getBody().toString());
         Graph graph = Parser.getInstance().parse(response.getBody().asInputStream(), "text/turtle");
         Iterator<Triple> typeTriples = graph.filter(null, RDF.type, FAM.LinkedEntity);
         Assert.assertTrue("No type triple found", typeTriples.hasNext());
-        Resource textDescription = typeTriples.next().getSubject();
-        Assert.assertTrue("TextDescription resource is not a BNode", textDescription instanceof BNode);
     }
 
     public static int findFreePort() {

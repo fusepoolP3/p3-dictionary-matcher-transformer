@@ -1,25 +1,19 @@
-package eu.fusepoolp3.dmasimple;
+package eu.fusepool.p3.dictionarymatcher;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.Span;
-import org.arabidopsis.ahocorasick.SearchResult;
 import org.arabidopsis.ahocorasick.AhoCorasick;
+import org.arabidopsis.ahocorasick.SearchResult;
 import org.tartarus.snowball.SnowballStemmer;
 
 /**
@@ -27,9 +21,9 @@ import org.tartarus.snowball.SnowballStemmer;
  * @author Gábor Reményi
  */
 public class DictionaryAnnotator {
-    // contains the search tree 
+    // contains the search tree
 
-    private AhoCorasick tree;
+    private final AhoCorasick tree;
     // OpenNLP tokenizer class
     private TokenizerModel modelTok;
     private Tokenizer tokenizer;
@@ -44,14 +38,13 @@ public class DictionaryAnnotator {
     private boolean eliminateOverlapping;
     private String stemmingLanguage;
     private Boolean stemming;
-    private Map<String, String> languages;
+    private final Map<String, String> languages;
 
     /**
      * Initializes the dictionary annotator by reading the dictionary and
      * building the search tree which is the soul of the Aho-Corasic algorithm.
      *
-     * @param dictionary
-     * @param _tokenizer
+     * @param _dictionary
      * @param _stemmingLanguage
      * @param _caseSensitive
      * @param _caseSensitiveLength
@@ -71,10 +64,9 @@ public class DictionaryAnnotator {
             InputStream inputStream = this.getClass().getResourceAsStream("/en-token.bin");
             modelTok = new TokenizerModel(inputStream);
             tokenizer = new TokenizerME(modelTok);
-        } catch (FileNotFoundException ex) {
-            System.err.println("Error while loading tokenizer model: " + ex.getMessage());
-        } catch (IOException ex) {
-            System.err.println("Error while loading tokenizer model: " + ex.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error while loading tokenizer model: " + e.getMessage());
+            throw new RuntimeException(e);
         }
         if (tokenizer == null) {
             System.err.println("Tokenizer cannot be NULL");
@@ -174,10 +166,10 @@ public class DictionaryAnnotator {
             }
         }
 
-
         System.out.print("(" + entitiesToReturn.size() + ") ...");
 
         end = System.currentTimeMillis();
+
         System.out.println(" done [" + Double.toString((double) (end - start) / 1000) + " sec] .");
 
         return entitiesToReturn;
@@ -279,79 +271,36 @@ public class DictionaryAnnotator {
             int position = 1;
             int begin, end;
             sb.append(" ");
-            if (caseSensitive) {
-                if (caseSensitiveLength > 0) {
-                    for (Span span : spans) {
-                        word = terms[i].substring(span.getStart(), span.getEnd());
 
+            for (Span span : spans) {
+                word = terms[i].substring(span.getStart(), span.getEnd());
+                if (caseSensitive) {
+                    if (caseSensitiveLength > 0) {
                         if (word.length() > caseSensitiveLength) {
                             word = word.toLowerCase();
                         }
-
-                        t = new Token(word);
-                        t.setOriginalBegin(span.getStart());
-                        t.setOriginalEnd(span.getEnd());
-
-                        begin = position + 1;
-                        t.setBegin(begin);
-
-                        end = begin + word.length();
-                        t.setEnd(end);
-
-                        position = end;
-
-                        tokText.addToken(t);
-
-                        sb.append(word);
-                        sb.append(" ");
                     }
                 } else {
-                    for (Span span : spans) {
-                        word = terms[i].substring(span.getStart(), span.getEnd());
-
-                        t = new Token(word);
-                        t.setOriginalBegin(span.getStart());
-                        t.setOriginalEnd(span.getEnd());
-
-                        begin = position + 1;
-                        t.setBegin(begin);
-
-                        end = begin + word.length();
-                        t.setEnd(end);
-
-                        position = end;
-
-                        tokText.addToken(t);
-
-                        sb.append(word);
-                        sb.append(" ");
-                    }
-                }
-            } else {
-                for (Span span : spans) {
-                    word = terms[i].substring(span.getStart(), span.getEnd());
-
                     word = word.toLowerCase();
-
-                    t = new Token(word);
-                    t.setOriginalBegin(span.getStart());
-                    t.setOriginalEnd(span.getEnd());
-
-                    begin = position + 1;
-                    t.setBegin(begin);
-
-                    end = begin + word.length();
-                    t.setEnd(end);
-
-                    position = end;
-
-                    tokText.addToken(t);
-
-                    sb.append(word);
-                    sb.append(" ");
                 }
-            }
 
+                t = new Token(word);
+                t.setOriginalBegin(span.getStart());
+                t.setOriginalEnd(span.getEnd());
+
+                begin = position + 1;
+                t.setBegin(begin);
+
+                end = begin + word.length();
+                t.setEnd(end);
+
+                position = end;
+
+                tokText.addToken(t);
+
+                sb.append(word);
+                sb.append(" ");
+            }
 
             tokText.setTokenizedText(sb.toString());
             processedTerms.add(tokText);
@@ -383,77 +332,37 @@ public class DictionaryAnnotator {
         int begin, end;
 
         sb.append(" ");
-        if (caseSensitive) {
-            if (caseSensitiveLength > 0) {
-                for (Span span : spans) {
-                    word = text.substring(span.getStart(), span.getEnd());
 
+        for (Span span : spans) {
+            word = text.substring(span.getStart(), span.getEnd());
+            if (caseSensitive) {
+                if (caseSensitiveLength > 0) {
                     if (word.length() > caseSensitiveLength) {
                         word = word.toLowerCase();
                     }
-
-                    t = new Token(word);
-                    t.setOriginalBegin(span.getStart());
-                    t.setOriginalEnd(span.getEnd());
-
-                    begin = position + 1;
-                    t.setBegin(begin);
-
-                    end = begin + word.length();
-                    t.setEnd(end);
-
-                    position = end;
-
-                    processedText.addToken(t);
-
-                    sb.append(word);
-                    sb.append(" ");
                 }
             } else {
-                for (Span span : spans) {
-                    word = text.substring(span.getStart(), span.getEnd());
-                    t = new Token(word);
-                    t.setOriginalBegin(span.getStart());
-                    t.setOriginalEnd(span.getEnd());
-
-                    begin = position + 1;
-                    t.setBegin(begin);
-
-                    end = begin + word.length();
-                    t.setEnd(end);
-
-                    position = end;
-
-                    processedText.addToken(t);
-
-                    sb.append(word);
-                    sb.append(" ");
-                }
-            }
-        } else {
-            for (Span span : spans) {
-                word = text.substring(span.getStart(), span.getEnd());
-
                 word = word.toLowerCase();
-
-                t = new Token(word);
-                t.setOriginalBegin(span.getStart());
-                t.setOriginalEnd(span.getEnd());
-
-                begin = position + 1;
-                t.setBegin(begin);
-
-                end = begin + word.length();
-                t.setEnd(end);
-
-                position = end;
-
-                processedText.addToken(t);
-
-                sb.append(word);
-                sb.append(" ");
             }
+
+            t = new Token(word);
+            t.setOriginalBegin(span.getStart());
+            t.setOriginalEnd(span.getEnd());
+
+            begin = position + 1;
+            t.setBegin(begin);
+
+            end = begin + word.length();
+            t.setEnd(end);
+
+            position = end;
+
+            processedText.addToken(t);
+
+            sb.append(word);
+            sb.append(" ");
         }
+
         processedText.setTokenizedText(sb.toString());
     }
 
@@ -490,13 +399,13 @@ public class DictionaryAnnotator {
                 entity = processedText.FindMatch(begin, end);
                 entity.setTokenizedBegin(begin);
                 entity.setTokenizedEnd(end);
+
                 entity.uri = stemming ? processedDictionary.GetURI(str) : originalDictionary.GetURI(entity.label);
 
                 if (entity.getUri() != null) {
-
                     concept = stemming ? processedDictionary.GetConcept(str) : originalDictionary.GetConcept(entity.label);
 
-                    if (concept.IsPrefLabel()) {
+                    if (concept.isPrefLabel()) {
                         entity.prefLabel = concept.labelText;
                         entity.altLabel = null;
                     } else {
@@ -589,13 +498,13 @@ public class DictionaryAnnotator {
                     token.stem = word;
                 }
                 name = sb.toString();
-                concept = dictionary.GetConcept(pt.originalText);
+                concept = originalDictionary.GetConcept(pt.originalText);
                 pt.setStemmedText(name);
 
                 processedDictionary.AddElement(name.substring(1, name.length() - 1), concept);
             }
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -634,7 +543,7 @@ public class DictionaryAnnotator {
             processedText.setStemmedText(sb.toString());
 
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }

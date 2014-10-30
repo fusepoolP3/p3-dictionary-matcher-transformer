@@ -1,4 +1,4 @@
-package eu.fusepoolp3.dictionarymatcher;
+package eu.fusepool.p3.transformer.dictionarymatcher;
 
 import org.wymiwyg.commons.util.arguments.ArgumentsWithHelp;
 import org.wymiwyg.commons.util.arguments.CommandLine;

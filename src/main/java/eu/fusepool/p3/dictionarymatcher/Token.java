@@ -1,4 +1,4 @@
-package eu.fusepoolp3.dmasimple;
+package eu.fusepool.p3.dictionarymatcher;
 
 /**
  * This class represents a single token created during tokenization. 

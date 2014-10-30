@@ -1,12 +1,12 @@
-package eu.fusepoolp3.dictionarymatcher;
+package eu.fusepool.p3.transformer.dictionarymatcher;
 
 import eu.fusepool.p3.transformer.HttpRequestEntity;
 import eu.fusepool.p3.transformer.RdfGeneratingTransformer;
 import eu.fusepool.p3.vocab.FAM;
-import eu.fusepoolp3.dmasimple.Annotation;
-import eu.fusepoolp3.dmasimple.DictionaryAnnotator;
-import eu.fusepoolp3.dmasimple.DictionaryStore;
-import eu.fusepoolp3.dmasimple.Skos;
+import eu.fusepool.p3.dictionarymatcher.Annotation;
+import eu.fusepool.p3.dictionarymatcher.DictionaryAnnotator;
+import eu.fusepool.p3.dictionarymatcher.DictionaryStore;
+import eu.fusepool.p3.dictionarymatcher.Skos;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
