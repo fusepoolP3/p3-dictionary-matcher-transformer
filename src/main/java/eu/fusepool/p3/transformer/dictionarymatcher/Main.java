@@ -1,12 +1,13 @@
 package eu.fusepool.p3.transformer.dictionarymatcher;
 
 import eu.fusepool.p3.transformer.Transformer;
+import eu.fusepool.p3.transformer.TransformerException;
 import eu.fusepool.p3.transformer.TransformerFactory;
 import eu.fusepool.p3.transformer.server.TransformerServer;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.lang.StringUtils;
+import javax.servlet.http.HttpServletResponse;
 import org.wymiwyg.commons.util.arguments.ArgumentHandler;
 
 public class Main {
@@ -34,18 +35,21 @@ public class Main {
                 new TransformerFactory() {
                     @Override
                     public Transformer getTransformer(HttpServletRequest request) {
-                        if (StringUtils.isNotEmpty(request.getQueryString())) {
-                            DictionaryMatcherTransformer dictionaryMatcherTransformer = transformers.get(request.getQueryString());
-                            // if transformer is not found in cache
-                            if (dictionaryMatcherTransformer == null) {
-                                // create a new transformer
-                                dictionaryMatcherTransformer = new DictionaryMatcherTransformer(request.getQueryString());
-                                // put the transformer in the cache
-                                transformers.put(request.getQueryString(), dictionaryMatcherTransformer);
-                            }
-                            return dictionaryMatcherTransformer;
-                        } else {
-                            return new DictionaryMatcherTransformer();
+                        switch (request.getMethod()) {
+                            case "GET":
+                                return new DictionaryMatcherTransformer();
+                            case "POST":
+                                DictionaryMatcherTransformer dictionaryMatcherTransformer = transformers.get(request.getQueryString());
+                                // if transformer is not found in cache
+                                if (dictionaryMatcherTransformer == null) {
+                                    // create a new transformer
+                                    dictionaryMatcherTransformer = new DictionaryMatcherTransformer(request.getQueryString());
+                                    // put the transformer in the cache
+                                    transformers.put(request.getQueryString(), dictionaryMatcherTransformer);
+                                }
+                                return dictionaryMatcherTransformer;
+                            default:
+                                throw new TransformerException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "ERROR: Method \"" + request.getMethod() + "\" is not allowed!");
                         }
                     }
                 });

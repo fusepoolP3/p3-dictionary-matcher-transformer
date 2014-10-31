@@ -6,6 +6,7 @@ import eu.fusepool.p3.dictionarymatcher.DictionaryStore;
 import eu.fusepool.p3.dictionarymatcher.Skos;
 import eu.fusepool.p3.transformer.HttpRequestEntity;
 import eu.fusepool.p3.transformer.RdfGeneratingTransformer;
+import eu.fusepool.p3.transformer.TransformerException;
 import eu.fusepool.p3.vocab.FAM;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -18,6 +19,7 @@ import java.util.UUID;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.clerezza.rdf.core.Graph;
 import org.apache.clerezza.rdf.core.Literal;
 import org.apache.clerezza.rdf.core.Triple;
@@ -53,18 +55,27 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
      * @param queryString
      */
     public DictionaryMatcherTransformer(String queryString) {
-        // get query params from query string
-        queryParams = getQueryParams(queryString);
-
         // query string must not be empty
+        if (StringUtils.isEmpty(queryString)) {
+            throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Query string must not be emtpy! \nUsage: http://<transformer>/?taxonomy=<taxonomy_URI>");
+        }
+
+        // get query params from query string
+        try {
+            queryParams = getQueryParams(queryString);
+        } catch (IndexOutOfBoundsException e) {
+            throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Badly formatted query string: \"" + queryString + "\" \nUsage: http://<transformer>/?taxonomy=<taxonomy_URI>");
+        }
+
+        // query params must not be empty
         if (queryParams.isEmpty()) {
-            throw new RuntimeException("Query string must not be empty!");
+            throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Badly formatted query string: \"" + queryString + "\" \nUsage: http://<transformer>/?taxonomy=<taxonomy_URI>");
         }
 
         String taxonomy = queryParams.get("taxonomy");
 
         if (StringUtils.isEmpty(taxonomy)) {
-            throw new RuntimeException("Taxonomy URI must not be empty!");
+            throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Taxonomy URI was not provided! \nUsage: http://<transformer>/?taxonomy=<taxonomy_URI>");
         }
 
         // create new dictionaryAnnotator if it does not exists
@@ -101,7 +112,7 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
                 Graph graph = Parser.getInstance().parse(entity.getData(), "text/turtle");
                 Iterator<Triple> typeTriples = graph.filter(null, SIOC.content, null);
                 if (!typeTriples.hasNext()) {
-                    throw new RuntimeException("No type triple found with predicate " + SIOC.content);
+                    throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: No type triple found with predicate " + SIOC.content);
                 }
                 StringBuilder result = new StringBuilder();
                 int count = 0;
@@ -125,7 +136,6 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
 
         final TripleCollection result = new SimpleMGraph();
         GraphNode node;
-
         // if data is empty or blank do not invoke the annotator
         if (StringUtils.isNotBlank(data)) {
             int i = 1;
@@ -176,6 +186,8 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
 
                 i++;
             }
+        } else {
+            throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Input text was not provided!");
         }
 
         return result;
@@ -204,7 +216,7 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
      * @param queryString the query string
      * @return HashMap containing the query parameters
      */
-    private Map<String, String> getQueryParams(String queryString) {
+    private Map<String, String> getQueryParams(String queryString) throws ArrayIndexOutOfBoundsException {
         Map<String, String> temp = new HashMap<>();
         // query string should not be empty or blank
         if (StringUtils.isNotBlank(queryString)) {

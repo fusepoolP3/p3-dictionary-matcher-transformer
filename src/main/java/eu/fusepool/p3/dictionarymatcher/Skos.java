@@ -1,7 +1,9 @@
 package eu.fusepool.p3.dictionarymatcher;
 
+import eu.fusepool.p3.transformer.TransformerException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.validator.UrlValidator;
 import org.semanticweb.skos.SKOSAnnotation;
 import org.semanticweb.skos.SKOSConcept;
@@ -38,8 +40,8 @@ public class Skos {
                     // if it is not valid try to get it from resources
                     uri = Skos.class.getResource("/" + taxonomy).toURI();
                 }
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
+            } catch (URISyntaxException | NullPointerException e) {
+                throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Taxonomy URI is invalid! (\"" + taxonomy + "\")");
             }
 
             // create dictionary store to store pref and alt labels
