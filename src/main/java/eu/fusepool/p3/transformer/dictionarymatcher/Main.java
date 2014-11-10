@@ -26,7 +26,7 @@ public class Main {
      * @throws Exception
      */
     private static void start(Arguments arguments) throws Exception {
-        TransformerServer server = new TransformerServer(arguments.getPort());
+        TransformerServer server = new TransformerServer(arguments.getPort(), true);
 
         // Map for caching transformers based on the query string
         final Map<String, DictionaryMatcherTransformer> transformers = new HashMap<>();

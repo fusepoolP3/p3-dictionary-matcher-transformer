@@ -47,7 +47,7 @@ public class TransformerTest {
     public void setUp() throws Exception {
         final int port = findFreePort();
         baseURI = "http://localhost:" + port + "/";
-        TransformerServer server = new TransformerServer(port);
+        TransformerServer server = new TransformerServer(port, false);
         server.start(new TransformerFactory() {
             @Override
             public Transformer getTransformer(HttpServletRequest request) {
