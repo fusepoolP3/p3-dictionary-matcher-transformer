@@ -12,6 +12,8 @@ Compile and run with
 
       mvn clean install exec:java
 
+###Usage
+
 Example invocation with curl (setting the Content-Location header is optional)
 
       $ curl -X POST -H "Content-Location: http://example.com/document1" -d @file.txt "http://localhost:7100/?taxonomy=http://example.org/mytaxonomy.owl"
