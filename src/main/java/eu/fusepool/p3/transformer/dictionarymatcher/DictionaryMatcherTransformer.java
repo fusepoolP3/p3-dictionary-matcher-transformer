@@ -206,6 +206,17 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
     }
 
     @Override
+    public Set<MimeType> getSupportedOutputFormats() {
+        try {
+            Set<MimeType> mimeTypes = new HashSet<>();
+            mimeTypes.add(new MimeType("text/turtle"));
+            return mimeTypes;
+        } catch (MimeTypeParseException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
     public boolean isLongRunning() {
         return false;
     }
