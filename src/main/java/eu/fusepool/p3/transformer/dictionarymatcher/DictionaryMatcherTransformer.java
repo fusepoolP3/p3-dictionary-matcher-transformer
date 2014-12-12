@@ -72,11 +72,18 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
             throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Badly formatted query string: \"" + queryString + "\" \nUsage: http://<transformer>/?taxonomy=<taxonomy_URI>");
         }
 
+        // get taxonomy URI
         String taxonomy = queryParams.get("taxonomy");
 
         if (StringUtils.isEmpty(taxonomy)) {
             throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Taxonomy URI was not provided! \nUsage: http://<transformer>/?taxonomy=<taxonomy_URI>");
         }
+
+        // get case sensitivity
+        boolean caseSensitivity = queryParams.get("casesensitive") != null;
+
+        // get stemming language
+        String stemmingLanguage = queryParams.get("stemming");
 
         // create new dictionaryAnnotator if it does not exists
         if (dictionaryAnnotator == null) {
@@ -90,7 +97,7 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
             System.out.print(" (" + dictionary.GetSize() + ") and creating transformer ...");
 
             // create the dictionary annotator instance
-            dictionaryAnnotator = new DictionaryAnnotator(dictionary, "English", false, 0, false);      // TODO get settings from query string
+            dictionaryAnnotator = new DictionaryAnnotator(dictionary, stemmingLanguage, caseSensitivity, 0, false);
 
             end = System.currentTimeMillis();
             System.out.println(" done [" + Double.toString((double) (end - start) / 1000) + " sec] .");

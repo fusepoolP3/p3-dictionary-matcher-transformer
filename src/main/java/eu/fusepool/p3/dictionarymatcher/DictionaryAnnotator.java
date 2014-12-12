@@ -12,6 +12,7 @@ import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.Span;
+import org.apache.commons.lang.StringUtils;
 import org.arabidopsis.ahocorasick.AhoCorasick;
 import org.arabidopsis.ahocorasick.SearchResult;
 import org.tartarus.snowball.SnowballStemmer;
@@ -73,29 +74,29 @@ public class DictionaryAnnotator {
         }
 
         // if no stemming language configuration is provided set stemming language to None
-        if (stemmingLanguage == null || stemmingLanguage.isEmpty()) {
-            stemmingLanguage = "None";
+        if (StringUtils.isBlank(stemmingLanguage)) {
+            stemmingLanguage = "none";
         }
         // create a mapping between the language and the name of the class
         // responsible for the stemming of the current language
         languages = new HashMap<>();
-        languages.put("None", "");
-        languages.put("Danish", "danishStemmer");
-        languages.put("Dutch", "dutchStemmer");
-        languages.put("English", "englishStemmer");
-        languages.put("Finnish", "finnishStemmer");
-        languages.put("French", "frenchStemmer");
-        languages.put("German", "germanStemmer");
-        languages.put("Hungarian", "hungarianStemmer");
-        languages.put("Italian", "italianStemmer");
-        languages.put("Norwegian", "norwegianStemmer");
-        //languages.put("english2", "porterStemmer");
-        languages.put("Portuguese", "portugueseStemmer");
-        languages.put("Romanian", "romanianStemmer");
-        languages.put("Russian", "russianStemmer");
-        languages.put("Spanish", "spanishStemmer");
-        languages.put("Swedish", "swedishStemmer");
-        languages.put("Turkish", "turkishStemmer");
+        languages.put("none", "");
+        languages.put("danish", "danishStemmer");
+        languages.put("dutch", "dutchStemmer");
+        languages.put("english", "englishStemmer");
+        languages.put("finnish", "finnishStemmer");
+        languages.put("french", "frenchStemmer");
+        languages.put("german", "germanStemmer");
+        languages.put("hungarian", "hungarianStemmer");
+        languages.put("italian", "italianStemmer");
+        languages.put("norwegian", "norwegianStemmer");
+        languages.put("english2", "porterStemmer");
+        languages.put("portuguese", "portugueseStemmer");
+        languages.put("romanian", "romanianStemmer");
+        languages.put("russian", "russianStemmer");
+        languages.put("spanish", "spanishStemmer");
+        languages.put("swedish", "swedishStemmer");
+        languages.put("turkish", "turkishStemmer");
 
         originalDictionary = new DictionaryStore();
         processedDictionary = new DictionaryStore();
