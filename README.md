@@ -29,7 +29,7 @@ The supported input and output formats of the transformer can be retrieved by th
 
 The transformer accepts the input data enclosed in the request message’s body, and expects the URI of the taxonomy (and additional options) in the query string.
 
-      curl -X POST -d <data> "http://localhost:7100/?taxonomy=<taxonomy_URI>&stemming=english&casesensitive=true"
+      curl -X POST -d <data> "http://localhost:7100/?taxonomy=<taxonomy_URI>&stemming=<stemming_language>&casesensitive=true"
       
 `taxonomy` - URI of the taxonomy (it must be a valid resource location)
 
