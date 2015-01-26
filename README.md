@@ -1,8 +1,15 @@
-Dictionary Matcher Transformer
-=========================
-The Dictionary Matcher Transformer is an information extraction tool that extracts words and phrases from input texts based on SKOS  taxonomies. It supports multiple languages and performs very fast keyword matching even with huge taxonomies. The transformer is based on the modified version of a string matching algorithm called Aho-Corasick.
+# Dictionary Matcher Transformer [![Build Status](https://travis-ci.org/fusepoolP3/p3-dictionary-matcher-transformer.svg)](https://travis-ci.org/fusepoolP3/p3-dictionary-matcher-transformer)
+The Dictionary Matcher Transformer is an information extraction tool that extracts words and phrases from text based on SKOS  taxonomies. It supports multiple languages and performs very fast keyword matching even with huge taxonomies. The transformer is based on the modified version of a string matching algorithm called Aho-Corasick.
 
-###Install and run
+## Try it out
+
+There is a Dictionary Matcher Transformer instance running in Fusepool sandbox environment. As an example, the transformer with URI `http://sandbox.fusepool.info:8192/?taxonomy=http://data.nytimes.com/descriptors.rdf` will find mentions of New York Times categories in a textual content.
+
+To try it out witch cURL:
+
+      curl -X POST -d "Frauds and Swindlings cause significant concerns with regards to Ethics." "http://sandbox.fusepool.info:8192/?taxonomy=http://data.nytimes.com/descriptors.rdf"
+
+## Compiling and Running
 
 Clone the repository to your local machine
 
@@ -118,3 +125,6 @@ The following curl example shows an example invocation of the Dictionary Matcher
                     "71"^^<http://www.w3.org/2001/XMLSchema#int> .
                   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#endIndex>
                           "146"^^<http://www.w3.org/2001/XMLSchema#int> .
+
+## References
+This application implements the requirements in [FP-39](https://fusepool.atlassian.net/browse/FP-39), [FP-105](https://fusepool.atlassian.net/browse/FP-105) and [FP-197](https://fusepool.atlassian.net/browse/FP-197).
