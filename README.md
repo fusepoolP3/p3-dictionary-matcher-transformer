@@ -23,7 +23,7 @@ Start the application with parameters (`-P` sets the port, `-C` enables CORS)
 
       mvn exec:java -Dexec.args="-P 7100 -C"
 
-###Usage
+## Usage
 
 The supported input and output formats of the transformer can be retrieved by the following GET request
 
