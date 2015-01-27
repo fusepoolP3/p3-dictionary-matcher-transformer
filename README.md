@@ -3,11 +3,15 @@ The Dictionary Matcher Transformer is an information extraction tool that extrac
 
 ## Try it out
 
-There is a Dictionary Matcher Transformer instance running in Fusepool sandbox environment. As an example, the transformer with URI `http://sandbox.fusepool.info:8192/?taxonomy=http://data.nytimes.com/descriptors.rdf` will find mentions of New York Times categories in a textual content.
+To try it out, you can download the binaries of the latest release from the  [release page](https://github.com/fusepoolP3/p3-dictionary-matcher-transformer/releases).
 
-To try it out witch cURL:
+Then start the application with
+      
+      java -jar p3-dictionary-matcher-transformer-v1.0.0-<latest-release-date>-jar-with-dependencies.jar
 
-      curl -X POST -d "Frauds and Swindlings cause significant concerns with regards to Ethics." "http://sandbox.fusepool.info:8192/?taxonomy=http://data.nytimes.com/descriptors.rdf"
+Once it started use cURL to test it
+
+      curl -X POST -d "@test.txt" "http://localhost:7100/?taxonomy=http://example.org/example-taxonomy.rdf"
 
 ## Compiling and Running
 
@@ -46,9 +50,9 @@ The transformer accepts the input data enclosed in the request message’s body,
 
 The following curl example shows an example invocation of the Dictionary Matcher Transformer running on Fusepool sandbox environment:
 
-      curl -X POST -d "Frauds and Swindlings cause significant concerns with regards to Ethics." "http://sandbox.fusepool.info:8192/?taxonomy=http://data.nytimes.com/descriptors.rdf&stemming=english"
+      curl -X POST -d "Frauds and Swindlings cause significant concerns with regards to Ethics." "http://localhost:7100/?taxonomy=http://data.nytimes.com/descriptors.rdf&stemming=english"
  
-      <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation-body1>
+      <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation-body1>
             a       <http://vocab.fusepool.info/fam#LinkedEntity> ;
             <http://vocab.fusepool.info/fam#entity-label>
                     "Frauds and Swindling"^^<http://www.w3.org/2001/XMLSchema#string> ;
@@ -57,36 +61,36 @@ The following curl example shows an example invocation of the Dictionary Matcher
             <http://vocab.fusepool.info/fam#entity-reference>
                     <http://data.nytimes.com/N38522309997148425060> ;
             <http://vocab.fusepool.info/fam#extracted-from>
-                    <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897> ;
+                    <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897> ;
             <http://vocab.fusepool.info/fam#selector>
-                    <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#char=0,21> .
+                    <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#char=0,21> .
       
-      <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation1>
+      <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation1>
             a       <http://www.w3.org/ns/oa#Annotation> ;
             <http://www.w3.org/ns/oa#annotatedAt>
                     "2014-10-30T14:35:26+0100"^^<http://www.w3.org/2001/XMLSchema#string> ;
             <http://www.w3.org/ns/oa#annotatedBy>
                     <p3-dictionary-matcher-transformer> ;
             <http://www.w3.org/ns/oa#hasBody>
-                    <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation-body1> ;
+                    <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation-body1> ;
             <http://www.w3.org/ns/oa#hasTarget>
-                    <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#sp-resource1> .			  
+                    <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#sp-resource1> .			  
       		
-      <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#sp-resource1>
+      <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#sp-resource1>
             a       <http://www.w3.org/ns/oa#SpecificResource> ;
             <http://www.w3.org/ns/oa#hasSelector>
-                    <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#char=0,21> ;
+                    <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#char=0,21> ;
             <http://www.w3.org/ns/oa#hasSource>
-                    <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation-body1> .
+                    <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation-body1> .
       		
-      <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#char=0,21>
+      <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#char=0,21>
             a       <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String> , <http://vocab.fusepool.info/fam#NifSelector> ;
             <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#beginIndex>
                     "0"^^<http://www.w3.org/2001/XMLSchema#int> ;
             <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#endIndex>
                     "21"^^<http://www.w3.org/2001/XMLSchema#int> .	
       	
-      <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation-body2>
+      <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation-body2>
             a       <http://vocab.fusepool.info/fam#LinkedEntity> ;
             <http://vocab.fusepool.info/fam#entity-label>
                     "Ethics"^^<http://www.w3.org/2001/XMLSchema#string> ;
@@ -95,29 +99,29 @@ The following curl example shows an example invocation of the Dictionary Matcher
             <http://vocab.fusepool.info/fam#entity-reference>
                     <http://data.nytimes.com/48662871776634757120> ;
             <http://vocab.fusepool.info/fam#extracted-from>
-                    <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897> ;
+                    <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897> ;
             <http://vocab.fusepool.info/fam#selector>
-                    <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#char=65,71> .
+                    <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#char=65,71> .
       			  
-      <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation2>
+      <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation2>
             a       <http://www.w3.org/ns/oa#Annotation> ;
             <http://www.w3.org/ns/oa#annotatedAt>
                     "2014-10-30T14:35:26+0100"^^<http://www.w3.org/2001/XMLSchema#string> ;
             <http://www.w3.org/ns/oa#annotatedBy>
                     <p3-dictionary-matcher-transformer> ;
             <http://www.w3.org/ns/oa#hasBody>
-                    <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation-body2> ;
+                    <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation-body2> ;
             <http://www.w3.org/ns/oa#hasTarget>
-                    <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#sp-resource2> .
+                    <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#sp-resource2> .
       
-      <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#sp-resource2>
+      <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#sp-resource2>
             a       <http://www.w3.org/ns/oa#SpecificResource> ;
             <http://www.w3.org/ns/oa#hasSelector>
-                    <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#char=65,71> ;
+                    <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#char=65,71> ;
             <http://www.w3.org/ns/oa#hasSource>
-                    <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation-body2> .
+                    <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation-body2> .
       
-      <http://sandbox.fusepool.info:8192/bad1b7a2-431a-4861-acd5-f01515a6d897#char=65,71>
+      <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#char=65,71>
             a       <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#String> , <http://vocab.fusepool.info/fam#NifSelector> ;
             <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#beginIndex>
                     "65"^^<http://www.w3.org/2001/XMLSchema#int> ;
