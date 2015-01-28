@@ -50,7 +50,7 @@ The transformer accepts the input data enclosed in the request message’s body,
 
 The following curl example shows an example invocation of the Dictionary Matcher Transformer of a local running instance:
 
-      curl -X POST -d "Frauds and Swindlings cause significant concerns with regards to Ethics." "http://localhost:7100/?taxonomy=http://data.nytimes.com/descriptors.rdf&stemming=english"
+      curl -X POST --data-binary "Frauds and Swindlings cause significant concerns with regards to Ethics." "http://localhost:7100/?taxonomy=http://data.nytimes.com/descriptors.rdf&stemming=english"
  
       <http://localhost:7100/bad1b7a2-431a-4861-acd5-f01515a6d897#annotation-body1>
             a       <http://vocab.fusepool.info/fam#LinkedEntity> ;
