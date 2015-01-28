@@ -11,7 +11,7 @@ Then start the application with
 
 Once it started use cURL to test it
 
-      curl -X POST -d "@test.txt" "http://localhost:7100/?taxonomy=http://example.org/example-taxonomy.rdf"
+      curl -X POST --data-binary "@test.txt" "http://localhost:7100/?taxonomy=http://example.org/example-taxonomy.rdf"
 
 ## Compiling and Running
 
@@ -40,7 +40,7 @@ The supported input and output formats of the transformer can be retrieved by th
 
 The transformer accepts the input data enclosed in the request message’s body, and expects the URI of the taxonomy (and additional options) in the query string.
 
-      curl -X POST -d <data> "http://localhost:7100/?taxonomy=<taxonomy_URI>&stemming=<stemming_language>&casesensitive=true"
+      curl -X POST --data-binary <data> "http://localhost:7100/?taxonomy=<taxonomy_URI>&stemming=<stemming_language>&casesensitive=true"
       
 `taxonomy` - URI of the taxonomy (it must be a valid resource location)
 
@@ -48,7 +48,7 @@ The transformer accepts the input data enclosed in the request message’s body,
 
 `casesensitive` - optional - if present, enables case sensitivity
 
-The following curl example shows an example invocation of the Dictionary Matcher Transformer running on Fusepool sandbox environment:
+The following curl example shows an example invocation of the Dictionary Matcher Transformer of a local running instance:
 
       curl -X POST -d "Frauds and Swindlings cause significant concerns with regards to Ethics." "http://localhost:7100/?taxonomy=http://data.nytimes.com/descriptors.rdf&stemming=english"
  
