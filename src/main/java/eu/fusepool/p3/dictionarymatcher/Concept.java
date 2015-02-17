@@ -1,5 +1,8 @@
 package eu.fusepool.p3.dictionarymatcher;
 
+import org.apache.clerezza.rdf.core.UriRef;
+import org.apache.clerezza.rdf.ontologies.SKOS04;
+
 /**
  * This object represents a single triple in a SKOS taxonomy
  *
@@ -8,32 +11,32 @@ package eu.fusepool.p3.dictionarymatcher;
 public class Concept {
 
     public String labelText;
-    public LabelType labelType;
+    public UriRef labelType;
     public String uri;
     public String type;
 
     public Concept() {
     }
 
-    public Concept(String labelText, String labelType, String uri) {
+    public Concept(String labelText, UriRef labelType, String uri) {
         this.labelText = labelText;
-        this.labelType = LabelType.getByValue(labelType);
+        this.labelType = labelType;
         this.uri = uri;
     }
 
-    public Concept(String labelText, String labelType, String uri, String type) {
+    public Concept(String labelText, UriRef labelType, String uri, String type) {
         this.labelText = labelText;
-        this.labelType = LabelType.getByValue(labelType);
+        this.labelType = labelType;
         this.uri = uri;
         this.type = type;
     }
 
     public Boolean isPrefLabel() {
-        return LabelType.isPrefLabel(labelType);
+        return SKOS04.prefLabel.equals(labelType);
     }
 
     public Boolean isAltLabel() {
-        return LabelType.isAltLabel(labelType);
+        return SKOS04.altLabel.equals(labelType);
     }
 
     @Override

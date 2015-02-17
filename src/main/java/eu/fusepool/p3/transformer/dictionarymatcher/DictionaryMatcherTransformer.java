@@ -3,12 +3,16 @@ package eu.fusepool.p3.transformer.dictionarymatcher;
 import eu.fusepool.p3.dictionarymatcher.Annotation;
 import eu.fusepool.p3.dictionarymatcher.DictionaryAnnotator;
 import eu.fusepool.p3.dictionarymatcher.DictionaryStore;
-import eu.fusepool.p3.dictionarymatcher.Skos;
+import eu.fusepool.p3.dictionarymatcher.Reader;
 import eu.fusepool.p3.transformer.HttpRequestEntity;
 import eu.fusepool.p3.transformer.RdfGeneratingTransformer;
 import eu.fusepool.p3.transformer.TransformerException;
 import eu.fusepool.p3.vocab.FAM;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,6 +36,7 @@ import org.apache.clerezza.rdf.ontologies.SIOC;
 import org.apache.clerezza.rdf.utils.GraphNode;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.validator.UrlValidator;
 
 /**
  *
@@ -87,14 +92,29 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
 
         // create new dictionaryAnnotator if it does not exists
         if (dictionaryAnnotator == null) {
+            InputStream inputStream = null;
             long start, end;
-            System.out.print("Loading taxonomy from " + taxonomy);
             start = System.currentTimeMillis();
 
-            // get the dictionary from reading the SKOS file
-            dictionary = Skos.readDictionary(taxonomy);
+            try {
+                URI uri;
+                // see if url is valid
+                if (isURLValid(taxonomy)) {
+                    uri = new URI(taxonomy);
+                } else {
+                    // if it is not valid try to get it from resources
+                    uri = Reader.class.getResource("/" + taxonomy).toURI();
+                }
+                URL url = uri.toURL();
+                inputStream = url.openStream();
+            } catch (URISyntaxException | NullPointerException | IOException e) {
+                throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Taxonomy URI is invalid! (\"" + taxonomy + "\")");
+            }
 
-            System.out.print(" (" + dictionary.GetSize() + ") and creating transformer ...");
+            // get the dictionary from reading the SKOS file
+            dictionary = Reader.readDictionary(inputStream);
+
+            System.out.print("Loading taxonomy from " + taxonomy + " (" + dictionary.GetSize() + ") and creating transformer ...");
 
             // create the dictionary annotator instance
             dictionaryAnnotator = new DictionaryAnnotator(dictionary, stemmingLanguage, caseSensitivity, 0, false);
@@ -309,5 +329,16 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
                 System.out.println("\t" + headerValue);
             }
         }
+    }
+
+    /**
+     * Check if URI is a valid URL.
+     *
+     * @param request
+     */
+    private static Boolean isURLValid(String uriString) {
+        String[] schemes = {"http", "https"};
+        UrlValidator urlValidator = new UrlValidator(schemes);
+        return urlValidator.isValid(uriString);
     }
 }

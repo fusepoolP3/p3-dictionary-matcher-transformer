@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import org.apache.clerezza.rdf.core.UriRef;
 
 /**
  * This class represents the dictionary using a HashMap to store the entity -
@@ -43,7 +44,7 @@ public class DictionaryStore {
      * @param labelType
      * @param uri
      */
-    public void AddOriginalElement(String labelText, String labelType, String uri) {
+    public void AddOriginalElement(String labelText, UriRef labelType, String uri) {
         Concept concept;
 
         if (keywords.containsKey(labelText)) {
@@ -67,7 +68,7 @@ public class DictionaryStore {
      * @param type
      * @param uri
      */
-    public void AddOriginalElement(String labelText, String labelType, String uri, String type) {
+    public void AddOriginalElement(String labelText, UriRef labelType, String uri, String type) {
         Concept concept;
 
         if (keywords.containsKey(labelText)) {
