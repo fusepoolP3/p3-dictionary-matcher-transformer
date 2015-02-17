@@ -155,6 +155,11 @@
             <artifactId>xml-apis</artifactId>
             <version>1.4.01</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.stanbol</groupId>
+            <artifactId>org.apache.stanbol.commons.indexedgraph</artifactId>
+            <version>0.12.0</version>
+        </dependency>
     </dependencies>
     
 </project>

@@ -2,8 +2,8 @@ package eu.fusepool.p3.dictionarymatcher;
 
 import java.io.InputStream;
 import java.util.Iterator;
-import org.apache.clerezza.rdf.core.Graph;
 import org.apache.clerezza.rdf.core.Literal;
+import org.apache.clerezza.rdf.core.MGraph;
 import org.apache.clerezza.rdf.core.NonLiteral;
 import org.apache.clerezza.rdf.core.PlainLiteral;
 import org.apache.clerezza.rdf.core.Resource;
@@ -15,6 +15,7 @@ import org.apache.clerezza.rdf.ontologies.RDF;
 import org.apache.clerezza.rdf.ontologies.SKOS04;
 import org.apache.clerezza.rdf.ontologies.XSD;
 import org.apache.commons.lang.StringUtils;
+import org.apache.stanbol.commons.indexedgraph.IndexedMGraph;
 
 /**
  *
@@ -31,7 +32,9 @@ public class Reader {
             // create dictionary store to store pref and alt labels
             DictionaryStore dictionary = new DictionaryStore();
 
-            Graph graph = Parser.getInstance().parse(inputStream, "application/rdf+xml");
+            MGraph graph = new IndexedMGraph();
+            Parser.getInstance().parse(graph, inputStream, "application/rdf+xml");
+            //Graph graph = Parser.getInstance().parse(inputStream, "application/rdf+xml");
             Iterator<Triple> typeTriples = graph.filter(null, RDF.type, SKOS04.Concept);
 
             while (typeTriples.hasNext()) {
