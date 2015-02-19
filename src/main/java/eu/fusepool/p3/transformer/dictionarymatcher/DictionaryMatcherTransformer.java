@@ -10,9 +10,11 @@ import eu.fusepool.p3.transformer.TransformerException;
 import eu.fusepool.p3.vocab.FAM;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -80,11 +82,17 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
         // get taxonomy URI
         String taxonomy = queryParams.get("taxonomy");
 
-        if (StringUtils.isEmpty(taxonomy)) {
+        if (StringUtils.isBlank(taxonomy)) {
             throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Taxonomy URI was not provided! \nUsage: http://<transformer>/?taxonomy=<taxonomy_URI>");
         }
 
-        // get case sensitivity
+        try {
+            // decode taxonomy URI
+            taxonomy = URLDecoder.decode(taxonomy, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+
         boolean caseSensitivity = queryParams.get("casesensitive") != null;
 
         // get stemming language
@@ -105,8 +113,9 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
                     // if it is not valid try to get it from resources
                     uri = Reader.class.getResource("/" + taxonomy).toURI();
                 }
-                URL url = uri.toURL();
-                inputStream = url.openStream();
+                URLConnection connection = uri.toURL().openConnection();
+                connection.setRequestProperty("Accept", "application/rdf+xml");
+                inputStream = connection.getInputStream();
             } catch (URISyntaxException | NullPointerException | IOException e) {
                 throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Taxonomy URI is invalid! (\"" + taxonomy + "\")");
             }
