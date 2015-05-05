@@ -7,7 +7,7 @@ To try it out, you can download the binaries of the latest release from the  [re
 
 Then start the application with
       
-      java -jar p3-dictionary-matcher-transformer-v1.0.0-*-jar-with-dependencies.jar
+      java -jar dictionary-matcher-transformer-v1.0.0-*-jar-with-dependencies.jar
 
 Once it started use cURL to test it
 
