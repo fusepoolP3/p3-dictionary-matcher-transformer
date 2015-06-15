@@ -11,21 +11,25 @@ Then start the application with
 
 Once it started use cURL to test it
 
-      curl -X POST --data-binary "@test.txt" "http://localhost:8301/?taxonomy=http://example.org/example-taxonomy.rdf"
+      curl -X POST -d "Frauds and Swindlings cause significant concerns with regards to Ethics." "http://localhost:8301/?taxonomy=http://data.nytimes.com/descriptors.rdf"
 
 ## Compiling and Running
 
-Clone the repository to your local machine
-
-      git clone https://github.com/fusepoolP3/p3-dictionary-matcher-transfromer.git
-
-Compile and run the application with
+Compile source code and run the application using Maven with
 
       mvn clean install exec:java
 
-Start the application with parameters (`-P` sets the port, `-C` enables CORS)
+Or start the application from binary
 
-      mvn exec:java -Dexec.args="-P 8301 -C"
+      java -jar dictionary-matcher-transformer-v1.0.0-*-jar-with-dependencies.jar
+      
+This will start the Dictionary Matcher Transformer on port 8301 by default.
+
+      java -Xmx{size} -jar {jar-name} [options]
+
+      -P|--port int     The port on which the proxy shall listen
+      -C|--enableCors   Enable a liberal CORS policy
+      -H|--help         Show help on command line arguments
 
 ## Usage
 
