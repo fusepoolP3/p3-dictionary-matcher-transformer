@@ -1,4 +1,4 @@
-package eu.fusepool.p3.dictionarymatcher;
+package eu.fusepool.p3.transformer.dictionarymatcher.impl;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -6,9 +6,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * This class represents an entity and stores its label, URI, begin and end
- * position, its weight, whether it overlaps with other entities and the label
- * divided into tokens.
+ * This class represents an entity and stores its label, URI, begin and end position, its weight, whether it overlaps
+ * with other entities and the label divided into tokens.
  *
  * @author Gábor Reményi
  */
@@ -178,7 +177,7 @@ public class Annotation {
      *
      * @param originalText
      */
-    public void FindEntityInOriginalText(String originalText) {
+    public void findEntityInOriginalText(String originalText) {
         int tokenCount = this.tokens.size();
 
         if (tokenCount == 1) {

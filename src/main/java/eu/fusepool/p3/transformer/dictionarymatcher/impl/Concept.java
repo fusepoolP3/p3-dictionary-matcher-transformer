@@ -1,4 +1,4 @@
-package eu.fusepool.p3.dictionarymatcher;
+package eu.fusepool.p3.transformer.dictionarymatcher.impl;
 
 import org.apache.clerezza.rdf.core.UriRef;
 import org.apache.clerezza.rdf.ontologies.SKOS04;

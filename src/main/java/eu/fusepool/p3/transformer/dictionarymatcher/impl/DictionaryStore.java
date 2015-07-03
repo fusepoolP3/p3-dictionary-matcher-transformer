@@ -1,4 +1,4 @@
-package eu.fusepool.p3.dictionarymatcher;
+package eu.fusepool.p3.transformer.dictionarymatcher.impl;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,8 +7,7 @@ import java.util.Set;
 import org.apache.clerezza.rdf.core.UriRef;
 
 /**
- * This class represents the dictionary using a HashMap to store the entity -
- * URI pairs for fast retrieval.
+ * This class represents the dictionary using a HashMap to store the entity - URI pairs for fast retrieval.
  *
  * @author Gábor Reményi
  */
@@ -32,7 +31,7 @@ public class DictionaryStore {
      * @param label
      * @param concept
      */
-    public void AddElement(String label, Concept concept) {
+    public void addElement(String label, Concept concept) {
         //concept.labelText = concept.labelText.toLowerCase();
         keywords.put(label.toLowerCase(), concept);
     }
@@ -44,7 +43,7 @@ public class DictionaryStore {
      * @param labelType
      * @param uri
      */
-    public void AddOriginalElement(String labelText, UriRef labelType, String uri) {
+    public void addOriginalElement(String labelText, UriRef labelType, String uri) {
         Concept concept;
 
         if (keywords.containsKey(labelText)) {
@@ -68,7 +67,7 @@ public class DictionaryStore {
      * @param type
      * @param uri
      */
-    public void AddOriginalElement(String labelText, UriRef labelType, String uri, String type) {
+    public void addOriginalElement(String labelText, UriRef labelType, String uri, String type) {
         Concept concept;
 
         if (keywords.containsKey(labelText)) {
@@ -90,7 +89,7 @@ public class DictionaryStore {
      * @param label
      * @return
      */
-    public String GetURI(String label) {
+    public String getURI(String label) {
         return keywords.get(label.toLowerCase()).uri;
     }
 
@@ -100,7 +99,7 @@ public class DictionaryStore {
      * @param label
      * @return
      */
-    public String GetOriginalURI(String label) {
+    public String getOriginalURI(String label) {
         return keywords.get(label.toLowerCase()).uri;
     }
 
@@ -110,7 +109,7 @@ public class DictionaryStore {
      * @param label
      * @return
      */
-    public String GetType(String label) {
+    public String getType(String label) {
         return keywords.get(label).type;
     }
 
@@ -120,7 +119,7 @@ public class DictionaryStore {
      * @param label
      * @return
      */
-    public Concept GetConcept(String label) {
+    public Concept getConcept(String label) {
         return keywords.get(label.toLowerCase());
     }
 
@@ -130,11 +129,11 @@ public class DictionaryStore {
      * @param uri
      * @return
      */
-    public String GetPrefLabel(String uri) {
+    public String getPrefLabel(String uri) {
         return prefLabels.get(uri);
     }
 
-    public int GetSize() {
+    public int getSize() {
         return keywords.size();
     }
 

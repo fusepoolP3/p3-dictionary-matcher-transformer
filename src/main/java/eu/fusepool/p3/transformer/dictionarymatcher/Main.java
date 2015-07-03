@@ -4,10 +4,10 @@ import eu.fusepool.p3.transformer.Transformer;
 import eu.fusepool.p3.transformer.TransformerException;
 import eu.fusepool.p3.transformer.TransformerFactory;
 import eu.fusepool.p3.transformer.server.TransformerServer;
-import java.util.HashMap;
-import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.clerezza.rdf.core.serializedform.Parser;
+import org.apache.clerezza.rdf.core.serializedform.Serializer;
 import org.wymiwyg.commons.util.arguments.ArgumentHandler;
 
 public class Main {
@@ -28,8 +28,10 @@ public class Main {
     private static void start(Arguments arguments) throws Exception {
         TransformerServer server = new TransformerServer(arguments.getPort(), arguments.enableCors());
 
-        // Map for caching transformers based on the query string
-        final Map<String, DictionaryMatcherTransformer> transformers = new HashMap<>();
+        // create the singleton instance of Serializer
+        Serializer.getInstance();
+        // create the singleton instance of Parser
+        Parser.getInstance();
 
         server.start(
                 new TransformerFactory() {
@@ -39,15 +41,7 @@ public class Main {
                             case "GET":
                                 return new DictionaryMatcherTransformer();
                             case "POST":
-                                DictionaryMatcherTransformer dictionaryMatcherTransformer = transformers.get(request.getQueryString());
-                                // if transformer is not found in cache
-                                if (dictionaryMatcherTransformer == null) {
-                                    // create a new transformer
-                                    dictionaryMatcherTransformer = new DictionaryMatcherTransformer(request.getQueryString());
-                                    // put the transformer in the cache
-                                    transformers.put(request.getQueryString(), dictionaryMatcherTransformer);
-                                }
-                                return dictionaryMatcherTransformer;
+                                return new DictionaryMatcherTransformer(request.getQueryString());
                             default:
                                 throw new TransformerException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "ERROR: Method \"" + request.getMethod() + "\" is not allowed!");
                         }

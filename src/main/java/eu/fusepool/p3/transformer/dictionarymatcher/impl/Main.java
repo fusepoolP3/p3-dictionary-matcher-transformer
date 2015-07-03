@@ -1,4 +1,4 @@
-package eu.fusepool.p3.dictionarymatcher;
+package eu.fusepool.p3.transformer.dictionarymatcher.impl;
 
 import java.util.List;
 import org.apache.clerezza.rdf.ontologies.SKOS04;
@@ -51,13 +51,15 @@ public class Main {
     private static void test() {
         dictionary = new DictionaryStore();
         for (Concept c : dict) {
-            dictionary.AddOriginalElement(c.labelText, c.labelType, c.uri, c.type);
+            dictionary.addOriginalElement(c.labelText, c.labelType, c.uri, c.type);
         }
         // no stemming, no case sensitivity
-        DictionaryAnnotator da = new DictionaryAnnotator(dictionary, "None", false, 0, false);
+        DictionaryAnnotator da = new DictionaryAnnotator(dictionary, "none", false, 0);
+
+        Extractor ex = new Extractor(da);
 
         // run annotation
-        List<Annotation> entities = da.GetEntities(test);
+        List<Annotation> entities = ex.getEntities(test);
 
         for (Annotation e : entities) {
             System.out.println(e);
@@ -70,13 +72,15 @@ public class Main {
     private static void testSpec() {
         dictionary = new DictionaryStore();
         for (Concept c : dictSpec) {
-            dictionary.AddOriginalElement(c.labelText, c.labelType, c.uri, c.type);
+            dictionary.addOriginalElement(c.labelText, c.labelType, c.uri, c.type);
         }
         // hun stemming, case sensitivity
-        DictionaryAnnotator da = new DictionaryAnnotator(dictionary, "Hungarian", true, 0, false);
+        DictionaryAnnotator da = new DictionaryAnnotator(dictionary, "hungarian", true, 0);
+
+        Extractor ex = new Extractor(da);
 
         // run annotation
-        List<Annotation> entities = da.GetEntities(test);
+        List<Annotation> entities = ex.getEntities(test);
 
         for (Annotation e : entities) {
             System.out.println(e);

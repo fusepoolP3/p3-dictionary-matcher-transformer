@@ -1,12 +1,14 @@
 package eu.fusepool.p3.transformer.dictionarymatcher;
 
-import eu.fusepool.p3.dictionarymatcher.Annotation;
-import eu.fusepool.p3.dictionarymatcher.DictionaryAnnotator;
-import eu.fusepool.p3.dictionarymatcher.DictionaryStore;
-import eu.fusepool.p3.dictionarymatcher.Reader;
 import eu.fusepool.p3.transformer.HttpRequestEntity;
 import eu.fusepool.p3.transformer.RdfGeneratingTransformer;
 import eu.fusepool.p3.transformer.TransformerException;
+import eu.fusepool.p3.transformer.dictionarymatcher.cache.Cache;
+import eu.fusepool.p3.transformer.dictionarymatcher.impl.Annotation;
+import eu.fusepool.p3.transformer.dictionarymatcher.impl.DictionaryAnnotator;
+import eu.fusepool.p3.transformer.dictionarymatcher.impl.DictionaryStore;
+import eu.fusepool.p3.transformer.dictionarymatcher.impl.Extractor;
+import eu.fusepool.p3.transformer.dictionarymatcher.impl.Reader;
 import eu.fusepool.p3.vocab.FAM;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,17 +16,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
-import java.net.URLDecoder;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.clerezza.rdf.core.Graph;
 import org.apache.clerezza.rdf.core.Literal;
@@ -38,7 +35,6 @@ import org.apache.clerezza.rdf.ontologies.SIOC;
 import org.apache.clerezza.rdf.utils.GraphNode;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.validator.UrlValidator;
 
 /**
  *
@@ -46,9 +42,10 @@ import org.apache.commons.validator.UrlValidator;
  */
 public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
 
+    final private static Object globalLock = new Object();
     private Map<String, String> queryParams;
+
     private DictionaryAnnotator dictionaryAnnotator;
-    private DictionaryStore dictionary;
 
     /**
      * Default constructor for GET.
@@ -69,8 +66,8 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
 
         // get query params from query string
         try {
-            queryParams = getQueryParams(queryString);
-        } catch (IndexOutOfBoundsException e) {
+            queryParams = Utils.getQueryParams(queryString);
+        } catch (ArrayIndexOutOfBoundsException | UnsupportedEncodingException e) {
             throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Badly formatted query string: \"" + queryString + "\" \nUsage: http://<transformer>/?taxonomy=<taxonomy_URI>");
         }
 
@@ -80,17 +77,10 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
         }
 
         // get taxonomy URI
-        String taxonomy = queryParams.get("taxonomy");
+        final String taxonomy = queryParams.get("taxonomy");
 
         if (StringUtils.isBlank(taxonomy)) {
             throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Taxonomy URI was not provided! \nUsage: http://<transformer>/?taxonomy=<taxonomy_URI>");
-        }
-
-        try {
-            // decode taxonomy URI
-            taxonomy = URLDecoder.decode(taxonomy, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
         }
 
         boolean caseSensitivity = queryParams.get("casesensitive") != null;
@@ -98,38 +88,52 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
         // get stemming language
         String stemmingLanguage = queryParams.get("stemming");
 
-        // create new dictionaryAnnotator if it does not exists
-        if (dictionaryAnnotator == null) {
-            InputStream inputStream = null;
-            long start, end;
+        DictionaryStore dictionaryStore = null;
+        InputStream inputStream;
+        Object lock;
+        long start, end;
+        String cache = "";
+
+        synchronized (globalLock) {
+            lock = Cache.register(taxonomy);
+        }
+
+        synchronized (lock) {
             start = System.currentTimeMillis();
+            // if not in the cache read it from provided uri
+            if (!Cache.containsTaxonomy(taxonomy)) {
+                try {
+                    URI uri;
+                    // see if url is valid
+                    if (Utils.isURLValid(taxonomy)) {
+                        uri = new URI(taxonomy);
+                    } else {
+                        // if it is not valid try to get it from resources
+                        uri = Reader.class.getResource("/" + taxonomy).toURI();
+                    }
+                    URLConnection connection = uri.toURL().openConnection();
+                    connection.setRequestProperty("Accept", "application/rdf+xml");
+                    inputStream = connection.getInputStream();
 
-            try {
-                URI uri;
-                // see if url is valid
-                if (isURLValid(taxonomy)) {
-                    uri = new URI(taxonomy);
-                } else {
-                    // if it is not valid try to get it from resources
-                    uri = Reader.class.getResource("/" + taxonomy).toURI();
+                    // get the dictionary from reading the SKOS file
+                    dictionaryStore = Reader.readDictionary(inputStream);
+
+                    // process taxonomy
+                    dictionaryAnnotator = new DictionaryAnnotator(dictionaryStore, stemmingLanguage, caseSensitivity, 0);
+
+                    // add it to cache
+                    Cache.setTaxonomy(taxonomy, dictionaryAnnotator);
+
+                } catch (URISyntaxException | NullPointerException | IOException e) {
+                    throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Taxonomy URI is invalid! (\"" + taxonomy + "\")");
                 }
-                URLConnection connection = uri.toURL().openConnection();
-                connection.setRequestProperty("Accept", "application/rdf+xml");
-                inputStream = connection.getInputStream();
-            } catch (URISyntaxException | NullPointerException | IOException e) {
-                throw new TransformerException(HttpServletResponse.SC_BAD_REQUEST, "ERROR: Taxonomy URI is invalid! (\"" + taxonomy + "\")");
+            } else {
+                cache = "(CACHED) ";
+                // get it from cache
+                dictionaryAnnotator = Cache.getTaxonomy(taxonomy);
             }
-
-            // get the dictionary from reading the SKOS file
-            dictionary = Reader.readDictionary(inputStream);
-
-            System.out.print("Loading taxonomy from " + taxonomy + " (" + dictionary.GetSize() + ") and creating transformer ...");
-
-            // create the dictionary annotator instance
-            dictionaryAnnotator = new DictionaryAnnotator(dictionary, stemmingLanguage, caseSensitivity, 0, false);
-
             end = System.currentTimeMillis();
-            System.out.println(" done [" + Double.toString((double) (end - start) / 1000) + " sec] .");
+            System.out.println("Loading " + cache + "taxonomy from " + taxonomy + " (" + dictionaryAnnotator.dictionary.getSize() + ") and creating transformer ... done [" + Double.toString((double) (end - start) / 1000) + " sec] .");
         }
     }
 
@@ -137,9 +141,8 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
     protected TripleCollection generateRdf(HttpRequestEntity entity) throws IOException {
         // get mimetype of content
         final MimeType mimeType = entity.getType();
-
         // get document URI
-        final String docuentURI = getDocuementURI(entity);
+        final String docuentURI = Utils.getDocuementURI(entity);
 
         String data = null;
         try {
@@ -175,8 +178,10 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
         // if data is empty or blank do not invoke the annotator
         if (StringUtils.isNotBlank(data)) {
             int i = 1;
+            // create extractor instance
+            Extractor extractor = new Extractor(dictionaryAnnotator);
             // create output from annotations
-            for (Annotation e : dictionaryAnnotator.GetEntities(data)) {
+            for (Annotation e : extractor.getEntities(data)) {
                 // create selector URI
                 String selector = docuentURI + "#char=" + e.getBegin() + "," + e.getEnd();
                 // create annotation-body URI
@@ -255,99 +260,5 @@ public class DictionaryMatcherTransformer extends RdfGeneratingTransformer {
     @Override
     public boolean isLongRunning() {
         return false;
-    }
-
-    /**
-     * Get query parameters from a query string.
-     *
-     * @param queryString the query string
-     * @return HashMap containing the query parameters
-     */
-    private Map<String, String> getQueryParams(String queryString) throws ArrayIndexOutOfBoundsException {
-        Map<String, String> temp = new HashMap<>();
-        // query string should not be empty or blank
-        if (StringUtils.isNotBlank(queryString)) {
-            String[] params = queryString.split("&");
-            String[] param;
-            for (String item : params) {
-                param = item.split("=", 2);
-                temp.put(param[0], param[1]);
-            }
-        }
-        return temp;
-    }
-
-    /**
-     * Get docuemt URI either from content location header, or generate one if
-     * it's null.
-     *
-     * @param entity
-     * @return
-     */
-    private String getDocuementURI(HttpRequestEntity entity) {
-        String documentURI;
-
-        if (entity.getContentLocation() == null) {
-            HttpServletRequest request = entity.getRequest();
-            String baseURL = getBaseURL(request);
-            String requestID = request.getHeader("X-Request-ID");
-
-            if (StringUtils.isNotEmpty(requestID)) {
-                documentURI = baseURL + requestID;
-            } else {
-                documentURI = baseURL + UUID.randomUUID().toString();
-            }
-        } else {
-            documentURI = entity.getContentLocation().toString();
-        }
-
-        return documentURI;
-    }
-
-    /**
-     * Returns the base URL.
-     *
-     * @param request
-     * @return
-     */
-    public static String getBaseURL(HttpServletRequest request) {
-        if ((request.getServerPort() == 80) || (request.getServerPort() == 443)) {
-            return request.getScheme() + "://" + request.getServerName() + "/";
-        } else {
-            return request.getScheme() + "://" + request.getServerName() + ":"
-                    + request.getServerPort() + "/";
-        }
-    }
-
-    /**
-     * For testing purposes.
-     *
-     * @param request
-     */
-    public void printHeaders(HttpServletRequest request) {
-        Enumeration<String> headerNames = request.getHeaderNames();
-
-        while (headerNames.hasMoreElements()) {
-
-            String headerName = headerNames.nextElement();
-            System.out.print(headerName);
-
-            Enumeration<String> headers = request.getHeaders(headerName);
-            while (headers.hasMoreElements()) {
-                String headerValue = headers.nextElement();
-                System.out.println("\t" + headerValue);
-            }
-        }
-    }
-
-    /**
-     * Check if URI is a valid URL.
-     *
-     * @param request
-     */
-    private static Boolean isURLValid(String uriString) {
-        String[] schemes = {"http", "https"};
-        UrlValidator urlValidator = new UrlValidator(schemes);
-        return urlValidator.isValid(uriString);
     }
 }

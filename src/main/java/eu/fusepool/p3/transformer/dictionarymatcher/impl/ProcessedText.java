@@ -1,11 +1,11 @@
-package eu.fusepool.p3.dictionarymatcher;
+package eu.fusepool.p3.transformer.dictionarymatcher.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This object is used to store the results of the tokenization process. During
- * tokenization the original text is divided into tokens.
+ * This object is used to store the results of the tokenization process. During tokenization the original text is
+ * divided into tokens.
  *
  * @author Gábor Reményi
  */
@@ -87,14 +87,13 @@ public class ProcessedText {
     }
 
     /**
-     * Creates an entity object using its begin and end position in the
-     * tokenized text.
+     * Creates an entity object using its begin and end position in the tokenized text.
      *
      * @param begin
      * @param end
      * @return
      */
-    public Annotation FindMatch(int begin, int end) {
+    public Annotation findMatch(int begin, int end) {
         Annotation e = new Annotation();
 
         for (Token t : this.tokens) {
@@ -103,7 +102,7 @@ public class ProcessedText {
             }
         }
         // finding the entity in the original (not tokenized) text
-        e.FindEntityInOriginalText(originalText);
+        e.findEntityInOriginalText(originalText);
         return e;
     }
 }
