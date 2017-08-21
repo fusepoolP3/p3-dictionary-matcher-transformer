@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.validator.UrlValidator;
+import org.apache.commons.validator.routines.UrlValidator;
 
 /**
  *
@@ -131,7 +131,7 @@ public class Utils {
      */
     protected static Boolean isURLValid(String uriString) {
         String[] schemes = {"http", "https"};
-        UrlValidator urlValidator = new UrlValidator(schemes);
+        UrlValidator urlValidator = new UrlValidator(schemes,UrlValidator.ALLOW_LOCAL_URLS);
         return urlValidator.isValid(uriString);
     }
 }
